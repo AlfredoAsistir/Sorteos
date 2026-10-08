@@ -153,8 +153,8 @@
 
       <mat-card
         class="cardWithShadow result-card"
-        [class.result-card--empty]="!minimumSaleOutcomeVisible && !verification && !finalizedWinner"
-        [class.result-card--winner]="verification?.hayGanador === true || (!verification && !!finalizedWinner)"
+        [class.result-card--empty]="!minimumSaleOutcomeVisible && !verification"
+        [class.result-card--winner]="verification?.hayGanador === true"
         [class.result-card--no-winner]="minimumSaleOutcomeVisible || verification?.hayGanador === false"
       >
         <mat-card-content>
@@ -216,41 +216,6 @@
                   Reprogramar sorteo
                 </button>
               </div>
-            }
-          } @else if (finalizedWinner; as winner) {
-            <span class="card-eyebrow">Último resultado finalizado</span>
-            <div class="finalized-winner-heading">
-              <mat-icon>emoji_events</mat-icon>
-              <div>
-                <h2>{{ winner.sorteoNombre }}</h2>
-                <p>Finalizado el {{ winner.fechaFinalizacion | serverLocalDate:'dd/MM/yyyy, HH:mm' }}</p>
-              </div>
-            </div>
-            <dl class="finalized-winner-details">
-              <div><dt>Número ganador</dt><dd>{{ winner.numeroGanador }}</dd></div>
-              <div><dt>Ganador del sorteo</dt><dd>{{ winner.usuarioGanador }}</dd></div>
-              <div><dt>Folio</dt><dd>{{ winner.folioCompra }}</dd></div>
-            </dl>
-
-            @if (winner.referencia?.premioGenerado === true) {
-              @if (winner.referencia; as referral) {
-              <section class="referral-result referral-result--final">
-                <div class="referral-award-heading">
-                  <mat-icon>emoji_events</mat-icon>
-                  <h3>Ganador por referido</h3>
-                </div>
-                <div class="referral-reward-amount">{{ referral.importePremio | currency:'MXN':'symbol-narrow':'1.2-2' }}</div>
-                <dl>
-                  <div><dt>Usuario</dt><dd>{{ referral.referidorNombre }}</dd></div>
-                  <div><dt>Boletos requeridos</dt><dd>{{ referral.boletosRequeridos | number }}</dd></div>
-                  <div><dt>Boletos comprados</dt><dd>{{ referral.boletosConfirmados | number }}</dd></div>
-                  <div><dt>Estado</dt><dd class="reward-status" [class.reward-status--paid]="referral.estado === 2">{{ referralStatusLabel(referral.estado) }}</dd></div>
-                  @if (referral.estado === 2 && referral.fechaPago) {
-                    <div><dt>Fecha de pago</dt><dd>{{ referral.fechaPago | serverLocalDate:'dd/MM/yyyy, HH:mm' }}</dd></div>
-                  }
-                </dl>
-              </section>
-              }
             }
           }
         </mat-card-content>

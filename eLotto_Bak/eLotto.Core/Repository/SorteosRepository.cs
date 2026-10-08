@@ -482,16 +482,7 @@ namespace eLotto.Core.Repository
                 _context.GanadoresSorteos.Add(winnerRecord);
                 await _context.SaveChangesAsync(cancellationToken);
 
-                await _context.SorteosRascaditos
-                    .Where(x => x.SorteosId == sorteoId)
-                    .ExecuteDeleteAsync(cancellationToken);
-                await _context.BoletosConfirmados
-                    .Where(x => x.SorteosId == sorteoId)
-                    .ExecuteDeleteAsync(cancellationToken);
-                await _context.SorteosBoletos
-                    .Where(x => x.SorteosId == sorteoId)
-                    .ExecuteDeleteAsync(cancellationToken);
-                await ResetEmptyOperationalIdentitiesAsync(cancellationToken);
+                await TruncateOperationalTablesAsync(sorteoId, cancellationToken);
 
                 await transaction.CommitAsync(cancellationToken);
                 var finalizedWinner = await GetFinalizedWinnerAsync(sorteoId, cancellationToken);
@@ -765,14 +756,16 @@ WHERE NOT EXISTS
       AND history.FolioCompra = purchase.FolioCompra
 );", cancellationToken);
 
-        private Task ResetEmptyOperationalIdentitiesAsync(CancellationToken cancellationToken) =>
-            _context.Database.ExecuteSqlRawAsync(@"
-IF NOT EXISTS (SELECT 1 FROM SorteosRascaditos)
-    DBCC CHECKIDENT ('SorteosRascaditos', RESEED, 0) WITH NO_INFOMSGS;
-IF NOT EXISTS (SELECT 1 FROM BoletosConfirmados)
-    DBCC CHECKIDENT ('BoletosConfirmados', RESEED, 0) WITH NO_INFOMSGS;
-IF NOT EXISTS (SELECT 1 FROM SorteosBoletos)
-    DBCC CHECKIDENT ('SorteosBoletos', RESEED, 0) WITH NO_INFOMSGS;", cancellationToken);
+        private Task TruncateOperationalTablesAsync(int sorteoId, CancellationToken cancellationToken) =>
+            _context.Database.ExecuteSqlInterpolatedAsync($@"
+IF EXISTS (SELECT 1 FROM SorteosRascaditos WHERE SorteosId <> {sorteoId})
+    OR EXISTS (SELECT 1 FROM BoletosConfirmados WHERE SorteosId <> {sorteoId})
+    OR EXISTS (SELECT 1 FROM SorteosBoletos WHERE SorteosId <> {sorteoId})
+    THROW 51011, 'Hay registros operativos de otro sorteo; no se pueden truncar las tablas.', 1;
+
+TRUNCATE TABLE SorteosRascaditos;
+TRUNCATE TABLE BoletosConfirmados;
+TRUNCATE TABLE SorteosBoletos;", cancellationToken);
 
         private async Task AcquireLotteryLockAsync(int sorteoId, CancellationToken cancellationToken)
         {

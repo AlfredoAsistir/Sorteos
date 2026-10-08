@@ -60,4 +60,8 @@
     <EmbeddedResource Include="Resources\Fonts\Play\Play-Regular.ttf" LogicalName="eLotto.Resources.Fonts.Play-Regular.ttf" />
     <EmbeddedResource Include="Resources\Fonts\ShareTech\ShareTech-Regular.ttf" LogicalName="eLotto.Resources.Fonts.ShareTech-Regular.ttf" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
 </Project>

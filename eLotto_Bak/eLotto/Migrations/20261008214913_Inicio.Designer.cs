@@ -12,8 +12,8 @@ using eLotto.Core.Data;
 namespace eLotto.Migrations
 {
     [DbContext(typeof(eLottoContext))]
-    [Migration("20260902184427_inicio")]
-    partial class inicio
+    [Migration("20261008214913_Inicio")]
+    partial class Inicio
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,16 +34,21 @@ namespace eLotto.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CuentaAsignada")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("FolioCompra")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
 
                     b.Property<string>("Numero")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
 
                     b.Property<int>("SorteosId")
                         .HasColumnType("int");
@@ -55,11 +60,91 @@ namespace eLotto.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("WhatsAppConfirm")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UsuarioId");
+
+                    b.HasIndex("SorteosId", "Numero")
+                        .IsUnique();
+
+                    b.HasIndex("SorteosId", "UsuarioId", "FolioCompra");
+
                     b.ToTable("BoletosConfirmados", (string)null);
+                });
+
+            modelBuilder.Entity("eLotto.Core.Models.BoletosConfirmadosHistorial", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("CantidadBoletos")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CuentaAsignada")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<DateTime>("FechaArchivado")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaCompra")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaSorteo")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FolioCompra")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<decimal>("ImporteTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("NumerosJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("PrecioUnitario")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("SorteoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SorteoNombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WhatsAppConfirm")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId", "FechaCompra");
+
+                    b.HasIndex("SorteoId", "UsuarioId", "FolioCompra")
+                        .IsUnique();
+
+                    b.ToTable("BoletosConfirmadosHistorial", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_BoletosConfirmadosHistorial_Cantidad", "[CantidadBoletos] > 0");
+
+                            t.HasCheckConstraint("CK_BoletosConfirmadosHistorial_Importes", "[PrecioUnitario] >= 0 AND [ImporteTotal] >= 0");
+
+                            t.HasCheckConstraint("CK_BoletosConfirmadosHistorial_NumerosJson", "ISJSON([NumerosJson]) = 1");
+                        });
                 });
 
             modelBuilder.Entity("eLotto.Core.Models.GanadoresSorteos", b =>
@@ -84,6 +169,13 @@ namespace eLotto.Migrations
                     b.Property<string>("NombreGanador")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("NumeroGanador")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<int?>("SorteoId")
+                        .HasColumnType("int");
+
                     b.Property<int>("UsuarioIdGanador")
                         .HasColumnType("int");
 
@@ -92,7 +184,174 @@ namespace eLotto.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("SorteoId")
+                        .IsUnique()
+                        .HasFilter("[SorteoId] IS NOT NULL");
+
                     b.ToTable("GanadoresSorteos", (string)null);
+                });
+
+            modelBuilder.Entity("eLotto.Core.Models.ReferralDepositReward", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("DepositAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PercentageApplied")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("ReferredUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReferrerUserId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("RewardAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("RewardWalletTransactionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SourceDepositTransactionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RewardWalletTransactionId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ReferralDepositRewards_RewardWalletTransactionId");
+
+                    b.HasIndex("SourceDepositTransactionId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ReferralDepositRewards_SourceDepositTransactionId");
+
+                    b.HasIndex("ReferredUserId", "CreatedAt");
+
+                    b.HasIndex("ReferrerUserId", "CreatedAt");
+
+                    b.ToTable("ReferralDepositRewards", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ReferralDepositRewards_DepositAmount", "[DepositAmount] > 0");
+
+                            t.HasCheckConstraint("CK_ReferralDepositRewards_DifferentUsers", "[ReferredUserId] <> [ReferrerUserId]");
+
+                            t.HasCheckConstraint("CK_ReferralDepositRewards_PercentageApplied", "[PercentageApplied] > 0 AND [PercentageApplied] <= 100");
+
+                            t.HasCheckConstraint("CK_ReferralDepositRewards_RewardAmount", "[RewardAmount] > 0");
+                        });
+                });
+
+            modelBuilder.Entity("eLotto.Core.Models.ReferralProgramSettings", b =>
+                {
+                    b.Property<byte>("Id")
+                        .HasColumnType("tinyint");
+
+                    b.Property<decimal>("DepositRewardPercentage")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MaxRewardedDeposits")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinimumConfirmedTickets")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("WinnerCashRewardAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReferralProgramSettings", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ReferralProgramSettings_DepositRewardPercentage", "[DepositRewardPercentage] >= 0 AND [DepositRewardPercentage] <= 100");
+
+                            t.HasCheckConstraint("CK_ReferralProgramSettings_MaxRewardedDeposits", "[MaxRewardedDeposits] >= 0");
+
+                            t.HasCheckConstraint("CK_ReferralProgramSettings_MinimumConfirmedTickets", "[MinimumConfirmedTickets] >= 0");
+
+                            t.HasCheckConstraint("CK_ReferralProgramSettings_Singleton", "[Id] = 1");
+
+                            t.HasCheckConstraint("CK_ReferralProgramSettings_WinnerCashRewardAmount", "[WinnerCashRewardAmount] >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("eLotto.Core.Models.ReferralWinnerCashReward", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ActualTickets")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ReferrerUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RequiredTickets")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("RewardAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WinnerRecordId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WinnerRecordId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ReferralWinnerCashRewards_WinnerRecordId");
+
+                    b.HasIndex("ReferrerUserId", "CreatedAt");
+
+                    b.ToTable("ReferralWinnerCashRewards", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ReferralWinnerCashRewards_ActualTickets", "[ActualTickets] >= 0");
+
+                            t.HasCheckConstraint("CK_ReferralWinnerCashRewards_PaymentState", "([Status] = 1 AND [PaidAt] IS NULL) OR ([Status] = 2 AND [PaidAt] IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_ReferralWinnerCashRewards_RequiredTickets", "[RequiredTickets] >= 0");
+
+                            t.HasCheckConstraint("CK_ReferralWinnerCashRewards_RewardAmount", "[RewardAmount] > 0");
+
+                            t.HasCheckConstraint("CK_ReferralWinnerCashRewards_Status", "[Status] IN (1, 2)");
+                        });
                 });
 
             modelBuilder.Entity("eLotto.Core.Models.Rol", b =>
@@ -137,8 +396,16 @@ namespace eLotto.Migrations
                     b.Property<string>("Imagen2")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Imagen2Tema")
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
                     b.Property<string>("Imagen3")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Imagen3Tema")
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
 
                     b.Property<decimal>("ImporteDepositoStripePorRascadito")
                         .ValueGeneratedOnAdd()
@@ -185,6 +452,13 @@ namespace eLotto.Migrations
 
                     b.Property<int>("UsuarioIdGanador")
                         .HasColumnType("int");
+
+                    b.Property<string>("ZonaHoraria")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)")
+                        .HasDefaultValue("CDMX");
 
                     b.HasKey("Id");
 
@@ -297,9 +571,7 @@ namespace eLotto.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("FechaGeneracion")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("SYSDATETIME()");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("FechaRevelado")
                         .HasColumnType("datetime2");
@@ -380,6 +652,82 @@ namespace eLotto.Migrations
                         });
                 });
 
+            modelBuilder.Entity("eLotto.Core.Models.SorteosRascaditosGanadoresHistorial", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("FechaArchivado")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaGeneracion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaRevelado")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Folio")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(32)");
+
+                    b.Property<decimal>("ImportePremio")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("LineaGanadora")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(32)");
+
+                    b.Property<string>("MatrizResultado")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(256)");
+
+                    b.Property<int>("SorteoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SorteoImagen")
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<string>("SorteoNombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WalletTransactionOrigenId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WalletTransactionPremioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SorteoId");
+
+                    b.HasIndex("WalletTransactionOrigenId");
+
+                    b.HasIndex("WalletTransactionPremioId")
+                        .IsUnique();
+
+                    b.HasIndex("UsuarioId", "FechaRevelado");
+
+                    b.HasIndex("UsuarioId", "SorteoId", "Folio")
+                        .IsUnique();
+
+                    b.ToTable("SorteosRascaditosGanadoresHistorial", (string)null);
+                });
+
             modelBuilder.Entity("eLotto.Core.Models.UserRols", b =>
                 {
                     b.Property<int>("Id")
@@ -439,6 +787,9 @@ namespace eLotto.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid?>("ActiveSessionId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("ConfirmCode")
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
@@ -469,9 +820,21 @@ namespace eLotto.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<DateTime?>("Over18ConfirmedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Password")
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("ReferralCode")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(8)");
+
+                    b.Property<int?>("ReferredByUserId")
+                        .HasColumnType("int");
 
                     b.Property<string>("StripeCustomerId")
                         .HasMaxLength(255)
@@ -488,6 +851,13 @@ namespace eLotto.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ReferralCode")
+                        .IsUnique()
+                        .HasDatabaseName("UX_Users_ReferralCode");
+
+                    b.HasIndex("ReferredByUserId")
+                        .HasDatabaseName("IX_Users_ReferredByUserId");
+
                     b.HasIndex("StripeCustomerId")
                         .IsUnique()
                         .HasFilter("[StripeCustomerId] IS NOT NULL");
@@ -496,7 +866,10 @@ namespace eLotto.Migrations
                         .IsUnique()
                         .HasDatabaseName("UX_Users_WhatsApp");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Users_ReferralCode_Format", "DATALENGTH([ReferralCode]) = 8 AND [ReferralCode] COLLATE Latin1_General_100_BIN2 NOT LIKE '%[^0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ]%'");
+                        });
                 });
 
             modelBuilder.Entity("eLotto.Core.Models.WalletTransaction", b =>
@@ -571,6 +944,104 @@ namespace eLotto.Migrations
                     b.ToTable("WalletTransactions", (string)null);
                 });
 
+            modelBuilder.Entity("eLotto.Core.Models.BoletosConfirmados", b =>
+                {
+                    b.HasOne("eLotto.Core.Models.Sorteos", null)
+                        .WithMany()
+                        .HasForeignKey("SorteosId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("eLotto.Core.Models.Users", null)
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("eLotto.Core.Models.BoletosConfirmadosHistorial", b =>
+                {
+                    b.HasOne("eLotto.Core.Models.Sorteos", "Sorteo")
+                        .WithMany()
+                        .HasForeignKey("SorteoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("eLotto.Core.Models.Users", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Sorteo");
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("eLotto.Core.Models.GanadoresSorteos", b =>
+                {
+                    b.HasOne("eLotto.Core.Models.Sorteos", "Sorteo")
+                        .WithMany()
+                        .HasForeignKey("SorteoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Sorteo");
+                });
+
+            modelBuilder.Entity("eLotto.Core.Models.ReferralDepositReward", b =>
+                {
+                    b.HasOne("eLotto.Core.Models.Users", "ReferredUser")
+                        .WithMany()
+                        .HasForeignKey("ReferredUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("eLotto.Core.Models.Users", "ReferrerUser")
+                        .WithMany()
+                        .HasForeignKey("ReferrerUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("eLotto.Core.Models.WalletTransaction", "RewardWalletTransaction")
+                        .WithMany()
+                        .HasForeignKey("RewardWalletTransactionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("eLotto.Core.Models.WalletTransaction", "SourceDepositTransaction")
+                        .WithMany()
+                        .HasForeignKey("SourceDepositTransactionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ReferredUser");
+
+                    b.Navigation("ReferrerUser");
+
+                    b.Navigation("RewardWalletTransaction");
+
+                    b.Navigation("SourceDepositTransaction");
+                });
+
+            modelBuilder.Entity("eLotto.Core.Models.ReferralWinnerCashReward", b =>
+                {
+                    b.HasOne("eLotto.Core.Models.Users", "ReferrerUser")
+                        .WithMany()
+                        .HasForeignKey("ReferrerUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("eLotto.Core.Models.GanadoresSorteos", "WinnerRecord")
+                        .WithOne("ReferralWinnerCashReward")
+                        .HasForeignKey("eLotto.Core.Models.ReferralWinnerCashReward", "WinnerRecordId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ReferrerUser");
+
+                    b.Navigation("WinnerRecord");
+                });
+
             modelBuilder.Entity("eLotto.Core.Models.SorteosBoletos", b =>
                 {
                     b.HasOne("eLotto.Core.Models.Sorteos", "Sorteos")
@@ -634,6 +1105,41 @@ namespace eLotto.Migrations
                     b.Navigation("WalletTransactionPremio");
                 });
 
+            modelBuilder.Entity("eLotto.Core.Models.SorteosRascaditosGanadoresHistorial", b =>
+                {
+                    b.HasOne("eLotto.Core.Models.Sorteos", "Sorteo")
+                        .WithMany()
+                        .HasForeignKey("SorteoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("eLotto.Core.Models.Users", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("eLotto.Core.Models.WalletTransaction", "WalletTransactionOrigen")
+                        .WithMany()
+                        .HasForeignKey("WalletTransactionOrigenId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("eLotto.Core.Models.WalletTransaction", "WalletTransactionPremio")
+                        .WithMany()
+                        .HasForeignKey("WalletTransactionPremioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Sorteo");
+
+                    b.Navigation("Usuario");
+
+                    b.Navigation("WalletTransactionOrigen");
+
+                    b.Navigation("WalletTransactionPremio");
+                });
+
             modelBuilder.Entity("eLotto.Core.Models.UserWallet", b =>
                 {
                     b.HasOne("eLotto.Core.Models.Users", "User")
@@ -643,6 +1149,16 @@ namespace eLotto.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("eLotto.Core.Models.Users", b =>
+                {
+                    b.HasOne("eLotto.Core.Models.Users", "Referrer")
+                        .WithMany("Referrals")
+                        .HasForeignKey("ReferredByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Referrer");
                 });
 
             modelBuilder.Entity("eLotto.Core.Models.WalletTransaction", b =>
@@ -671,6 +1187,11 @@ namespace eLotto.Migrations
                     b.Navigation("Wallet");
                 });
 
+            modelBuilder.Entity("eLotto.Core.Models.GanadoresSorteos", b =>
+                {
+                    b.Navigation("ReferralWinnerCashReward");
+                });
+
             modelBuilder.Entity("eLotto.Core.Models.Sorteos", b =>
                 {
                     b.Navigation("RascaditoPremios");
@@ -683,6 +1204,11 @@ namespace eLotto.Migrations
             modelBuilder.Entity("eLotto.Core.Models.UserWallet", b =>
                 {
                     b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("eLotto.Core.Models.Users", b =>
+                {
+                    b.Navigation("Referrals");
                 });
 #pragma warning restore 612, 618
         }

@@ -48,16 +48,6 @@ describe('EntregaPremioComponent referral transparency', () => {
     component.loading = false;
     component.sorteo = null;
     component.verification = null;
-    component.finalizedWinner = null;
-  });
-
-  it('omits the referral block for a normal winner', () => {
-    setActiveLottery(component);
-    component.finalizedWinner = finalizedWinner(null);
-    fixture.detectChanges();
-
-    expect(text()).toContain('Ganador del sorteo');
-    expect(text()).not.toContain('Ganador por referido');
   });
 
   it('places capture and lottery information on the left and reserves the right card for results', () => {
@@ -83,50 +73,6 @@ describe('EntregaPremioComponent referral transparency', () => {
     expect(result?.textContent?.trim()).toBe('');
     expect(text()).not.toContain('Precio por boleto');
     expect(text()).not.toContain('Resultado oficial');
-  });
-
-  it('shows persisted Pending reward snapshots and its beneficiary', () => {
-    setActiveLottery(component);
-    component.finalizedWinner = finalizedWinner({
-      referidorNombre: 'Alfredo López',
-      finalizado: true,
-      premioGenerado: true,
-      boletosRequeridos: 100,
-      boletosConfirmados: 127,
-      importePremio: 5000,
-      estado: 1,
-      fechaPago: null,
-    });
-    fixture.detectChanges();
-
-    expect(text()).toContain('Alfredo López');
-    expect(text()).not.toContain('+5266*****001');
-    expect(text()).toContain('Ganador por referido');
-    expect(text()).toContain('Usuario');
-    expect(text()).toContain('Boletos comprados');
-    expect(text()).toContain('100');
-    expect(text()).toContain('127');
-    expect(text()).toContain('$5,000.00');
-    expect(text()).toContain('Pendiente');
-    expect(text()).not.toContain('Fecha de pago');
-  });
-
-  it('shows Paid and PaidAt for a delivered historical reward', () => {
-    setActiveLottery(component);
-    component.finalizedWinner = finalizedWinner({
-      referidorNombre: 'Alfredo López',
-      finalizado: true,
-      premioGenerado: true,
-      boletosRequeridos: 100,
-      boletosConfirmados: 127,
-      importePremio: 5000,
-      estado: 2,
-      fechaPago: '2026-09-23T18:30:00',
-    });
-    fixture.detectChanges();
-
-    expect(text()).toContain('Pagado');
-    expect(text()).toContain('Fecha de pago');
   });
 
   it('identifies a referred winner during preview without presenting a persisted reward', () => {
@@ -214,24 +160,6 @@ describe('EntregaPremioComponent referral transparency', () => {
     expect(text()).not.toContain('Boletos comprados');
   });
 
-  it('omits the complete referral block for a finalized referred winner without reward', () => {
-    setActiveLottery(component);
-    component.finalizedWinner = finalizedWinner({
-      referidorNombre: 'Alfredo López',
-      finalizado: true,
-      premioGenerado: false,
-      boletosRequeridos: null,
-      boletosConfirmados: null,
-      importePremio: null,
-      estado: null,
-      fechaPago: null,
-    });
-    fixture.detectChanges();
-
-    expect(text()).not.toContain('Ganador por referido');
-    expect(text()).not.toContain('Alfredo López');
-  });
-
   it('shows the global loading indicator while rescheduling the lottery', async () => {
     setActiveLottery(component);
     component.verification = winnerVerification(false);
@@ -301,6 +229,8 @@ describe('EntregaPremioComponent referral transparency', () => {
   it('shows the global loading indicator while finalizing the lottery', async () => {
     setActiveLottery(component);
     component.verification = winnerVerification(true);
+    const lotteryService = TestBed.inject(UserLotteryService);
+    spyOn(lotteryService, 'getCurrent').and.returnValue(of(activeLottery() as CurrentLottery));
     const notifications = TestBed.inject(NotificationService);
     spyOn(notifications, 'confirm').and.resolveTo(true);
     const service = TestBed.inject(SorteosService);
@@ -314,10 +244,14 @@ describe('EntregaPremioComponent referral transparency', () => {
     }));
 
     await component.confirmFinalize();
+    fixture.detectChanges();
 
     expect(finalize).toHaveBeenCalled();
     expect(loading.show).toHaveBeenCalledBefore(loading.hide);
     expect(loading.hide).toHaveBeenCalledTimes(1);
+    const resultCard = (fixture.nativeElement as HTMLElement).querySelector('.result-card');
+    expect(resultCard?.classList.contains('result-card--empty')).toBeTrue();
+    expect(resultCard?.textContent?.trim()).toBe('');
   });
 
   function text(): string {

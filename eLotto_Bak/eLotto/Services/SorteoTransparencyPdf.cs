@@ -37,7 +37,7 @@ internal static class SorteoTransparencyPdf
                     .Bold().FontSize(12).FontColor("#0F766E");
                 column.Item().Text($"Sorteo: {nombre} · ID {sorteoId} · Programado: {fechaSorteo:dd/MM/yyyy HH:mm} ({zonaHoraria})");
                 column.Item().Text($"Ventas cerradas: {Format(fechaCierre)} · Documento emitido: {Format(fechaEmision)}");
-                column.Item().Text($"Boletos Emitidos: {total:N0} · Boletos Vendidos: {vendidos:N0} · No vendidos: {numeros.Count:N0}");
+                column.Item().Text($"Cantidad de Boletos No vendidos: {numeros.Count:N0}");
                 column.Item().PaddingVertical(8).LineHorizontal(1).LineColor("#CBD5E1");
             });
             page.Content().PaddingVertical(4).Column(column =>

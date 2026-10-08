@@ -5,7 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { FormNavigationDirective } from '../../core/forms/form-navigation.directive';
 import { NotificationService } from '../../core/notifications/notification.service';
-import { FinalizedLotteryWinner, SorteoWinnerVerification } from '../../core/sorteos/sorteo.models';
+import { SorteoWinnerVerification } from '../../core/sorteos/sorteo.models';
 import { CurrentLottery } from '../../core/user-lottery/user-lottery.models';
 import { MaterialModule } from '../../material.module';
 import { LoadingService } from '../../services/loading.service';
@@ -56,7 +56,6 @@ export class EntregaPremioComponent implements OnInit, OnDestroy {
   loading = false;
   processing = false;
   verification: SorteoWinnerVerification | null = null;
-  finalizedWinner: FinalizedLotteryWinner | null = null;
   minimumSaleOutcomeVisible = false;
   showCelebration = false;
   private statusTimerId: number | null = null;
@@ -113,12 +112,7 @@ export class EntregaPremioComponent implements OnInit, OnDestroy {
     if (this.loading) return;
     this.loading = true;
     try {
-      const [currentLottery, finalizedWinner] = await Promise.allSettled([
-        firstValueFrom(this.lotteryService.getCurrent()),
-        firstValueFrom(this.sorteosService.getLatestFinalizedWinner()),
-      ]);
-      this.sorteo = currentLottery.status === 'fulfilled' ? currentLottery.value : null;
-      this.finalizedWinner = finalizedWinner.status === 'fulfilled' ? finalizedWinner.value : null;
+      this.sorteo = await firstValueFrom(this.lotteryService.getCurrent()).catch(() => null);
       this.verification = null;
       this.minimumSaleOutcomeVisible = this.minimumSaleRequiresReschedule;
       this.form.reset({ numeroGanador: '' });
@@ -243,11 +237,10 @@ export class EntregaPremioComponent implements OnInit, OnDestroy {
     this.processing = true;
     this.globalLoading.show();
     try {
-      const result = await firstValueFrom(this.sorteosService.finalizeWinner(
+      await firstValueFrom(this.sorteosService.finalizeWinner(
         this.sorteo.id,
         this.verification.numeroGanador
       ));
-      this.finalizedWinner = result.ganador;
       this.notifications.show(
         'Sorteo finalizado',
         '',
@@ -261,12 +254,6 @@ export class EntregaPremioComponent implements OnInit, OnDestroy {
       this.globalLoading.hide();
       this.changeDetector.markForCheck();
     }
-  }
-
-  referralStatusLabel(status: 1 | 2 | null): string {
-    if (status === 1) return 'Pendiente';
-    if (status === 2) return 'Pagado';
-    return '';
   }
 
   private startStatusTimer(): void {
