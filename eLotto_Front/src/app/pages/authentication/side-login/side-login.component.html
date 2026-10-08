@@ -1,0 +1,198 @@
+<main class="login-page">
+  <section class="lottery-showcase" aria-label="Sorteo actual">
+    @if (lotteryLoading) {
+      <div class="lottery-loading">
+        <div class="lottery-loading-icon">🍀</div>
+        <h2>Preparando el sorteo...</h2>
+      </div>
+    } @else if (lottery; as current) {
+      @if (!current.ventaDisponible) {
+        <app-sorteo-status [lottery]="current" [secondsToStart]="lotteryCountdownSeconds" />
+      }
+
+      <app-lottery-date-strip [lottery]="current" />
+      <div class="public-carousel" aria-label="Imágenes del sorteo">
+        @for (image of images; track image; let index = $index) {
+          @if (index === carouselIndex || index === previousCarouselIndex) {
+            <img
+              class="public-carousel-slide"
+              [class.public-carousel-slide--previous]="index === previousCarouselIndex"
+              [class.public-carousel-slide--left-to-right]="index === carouselIndex && carouselDirection === 'left-to-right'"
+              [class.public-carousel-slide--right-to-left]="index === carouselIndex && carouselDirection === 'right-to-left'"
+              [src]="image"
+              [alt]="current.nombre"
+            />
+          }
+        }
+        @if (images.length > 1) {
+          <button class="carousel-control previous" type="button" aria-label="Imagen anterior" (click)="previousImage()"><mat-icon>chevron_left</mat-icon></button>
+          <button class="carousel-control next" type="button" aria-label="Imagen siguiente" (click)="nextImage()"><mat-icon>chevron_right</mat-icon></button>
+          <div class="carousel-indicators">
+            @for (image of images; track image; let index = $index) {
+              <button type="button" [class.active]="index === carouselIndex" [attr.aria-label]="'Mostrar imagen ' + (index + 1)" (click)="selectImage(index)"></button>
+            }
+          </div>
+        }
+      </div>
+
+      @if (current.ventaDisponible) {
+      <mat-card class="public-selection-card">
+        <mat-card-content>
+          <div class="selection-intro">
+            <div>
+              <h2>🍀 ¡Es tu día de suerte! 🍀</h2>
+              <p>Genera boletos al azar o consulta un número específico 🎟️</p>
+            </div>
+           
+          </div>
+
+          <mat-tab-group animationDuration="250ms">
+            <mat-tab label="🍀 Probar suerte">
+              <form
+                class="public-random-form"
+                [class.random-only]="lotteryRandomForm.controls.tipo.value === 'azar'"
+                [formGroup]="lotteryRandomForm"
+                (ngSubmit)="promptAuthentication()"
+              >
+                <mat-form-field appearance="outline">
+                  <mat-label>Tipo de asignación</mat-label>
+                  <mat-select formControlName="tipo">
+                    <mat-option value="azar">Totalmente al azar</mat-option>
+                    <mat-option value="inicio">Que inicien con...</mat-option>
+                    <mat-option value="fin">Que terminen con...</mat-option>
+                    <mat-option value="incluya">Que incluyan...</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                @if (lotteryRandomForm.controls.tipo.value !== 'azar') {
+                  <mat-form-field appearance="outline">
+                    <mat-label>Número para filtrar</mat-label>
+                    <input matInput formControlName="valor" inputmode="numeric" maxlength="10" />
+                  </mat-form-field>
+                }
+                <div class="public-quantity">
+                  <app-numeric-input label="¿Cuántos boletos?" [integerDigits]="4" formControlName="cantidad" />
+                  <small>Máximo 2,000</small>
+                </div>
+                <button class="public-generate-button" mat-flat-button color="primary" type="submit">
+                  <mat-icon>casino</mat-icon>Generar mis números
+                </button>
+              </form>
+            </mat-tab>
+
+            <mat-tab label="🎯 Número específico">
+              <form class="public-manual-form" [formGroup]="lotteryManualForm" (ngSubmit)="promptAuthentication()">
+                <mat-form-field appearance="outline">
+                  <mat-label>Números o rangos</mat-label>
+                  <input matInput formControlName="numeros" placeholder="125,185,300-350,400-450" />
+                  <mat-hint>Máximo 2,000 números</mat-hint>
+                </mat-form-field>
+                <button mat-flat-button color="primary" type="submit"><mat-icon>search</mat-icon>Consultar</button>
+              </form>
+            </mat-tab>
+          </mat-tab-group>
+        </mat-card-content>
+      </mat-card>
+      }
+    } @else {
+      <div class="lottery-empty">
+        <mat-icon>event_busy</mat-icon>
+        <h2>Próximo sorteo en preparación</h2>
+        <p>Inicia sesión o crea tu cuenta para estar listo cuando publiquemos el siguiente sorteo.</p>
+      </div>
+    }
+  </section>
+
+  <aside class="login-panel" id="loginPanel">
+    <div class="login-panel-inner">
+      <app-branding></app-branding>
+      <div class="login-heading">
+        <span class="login-eyebrow">Iniciar Sesión</span>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <mat-form-field appearance="outline" class="w-100" color="primary">
+          <mat-label>Usuario o WhatsApp</mat-label>
+          <input #loginUser matInput formControlName="uname" autocomplete="username" (keydown.enter)="onUsernameEnter($event)" />
+          @if (f['uname'].touched && f['uname'].invalid) {
+            <mat-hint class="error-msg">
+              @if (f['uname'].errors?.['required']) {
+                <span class="text-error">Usuario o WhatsApp es requerido.</span>
+              } @else if (f['uname'].hasError('whatsAppLength')) {
+                <span class="text-error">El WhatsApp debe contener 10 números.</span>
+              } @else if (f['uname'].hasError('usernameLength')) {
+                <span class="text-error">El usuario debe tener al menos 8 caracteres.</span>
+              }
+            </mat-hint>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100" color="primary">
+          <mat-label>Password</mat-label>
+          <input
+            #loginPassword
+            matInput
+            [type]="passwordVisible ? 'text' : 'password'"
+            formControlName="password"
+            autocomplete="current-password"
+            (keydown.enter)="onPasswordEnter($event)"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            tabindex="-1"
+            [attr.aria-label]="passwordVisible ? 'Ocultar password' : 'Mostrar password'"
+            [attr.aria-pressed]="passwordVisible"
+            (click)="passwordVisible = !passwordVisible"
+          >
+            <mat-icon>{{ passwordVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (f['password'].touched && f['password'].invalid) {
+            <mat-hint class="error-msg">
+              @if (f['password'].hasError('required')) {
+                <span class="text-error">Password es requerido.</span>
+              } @else if (f['password'].hasError('minlength')) {
+                <span class="text-error">El password debe tener al menos 8 caracteres.</span>
+              }
+            </mat-hint>
+          }
+        </mat-form-field>
+
+        <div class="login-options">
+          <mat-checkbox id="keepSession" formControlName="keepSession" color="primary">Mantener sesión</mat-checkbox>
+          <a [routerLink]="['/authentication/side-forgot-password']">¿Olvidaste tu password?</a>
+        </div>
+
+        <button mat-flat-button color="primary" class="login-submit" [disabled]="!form.valid">Entrar</button>
+      </form>
+
+      <div class="register-invitation">
+        <span>¿Primera vez en {{ appName }}?</span>
+        <a mat-stroked-button color="success" [routerLink]="['/authentication/side-register']">Crear mi cuenta</a>
+      </div>
+
+      @if (appInstallation.available()) {
+        <section class="install-promotion" [class.install-promotion--installed]="appInstallation.highlightMessage()" aria-label="Aplicación Sorteos GB" [attr.aria-busy]="appInstallation.busy()">
+          @if (appInstallation.busy()) {
+            <mat-spinner diameter="24" aria-label="Verificando instalación"></mat-spinner>
+          } @else {
+            <mat-icon aria-hidden="true">{{ appInstallation.installationKnown() ? 'check_circle' : 'install_mobile' }}</mat-icon>
+          }
+          <div class="install-promotion__message" [class.install-promotion__message--highlight]="appInstallation.highlightMessage()">
+            <strong>{{ appInstallation.title() }}</strong>
+            <span role="status" aria-live="polite">{{ appInstallation.description() }}</span>
+          </div>
+          @if (appInstallation.showAction()) {
+            <button class="install-promotion__action" [class.install-promotion__action--highlight]="appInstallation.highlightInstall()" mat-stroked-button color="primary" type="button" [disabled]="appInstallation.busy()" (click)="installApplication()">
+              {{ appInstallation.actionLabel() }}
+            </button>
+          }
+        </section>
+      }
+
+      <div class="login-security"><mat-icon>lock</mat-icon><span>Tu sesión y tus boletos están protegidos.</span></div>
+    </div>
+  </aside>
+</main>
+
+
+

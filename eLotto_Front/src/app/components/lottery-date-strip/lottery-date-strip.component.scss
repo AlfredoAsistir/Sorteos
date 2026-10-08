@@ -1,0 +1,33 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.lottery-date-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 215, 90, .75);
+  border-radius: 12px;
+  background: rgba(16, 37, 76, .9);
+  color: #fff;
+  font-size: .88rem;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.lottery-date-strip mat-icon {
+  align-self: flex-end;
+  color: #ffd75a;
+  transform: translateY(2px);
+}
+.lottery-date-strip__content { display: flex; flex-direction: column; gap: 2px; }
+.lottery-date-strip strong { color: #ffd75a; font-weight: 700; }
+
+@media (max-width: 599px) {
+  .lottery-date-strip { padding: 7px 10px; font-size: .78rem; }
+}

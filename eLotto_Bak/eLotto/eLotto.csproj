@@ -1,0 +1,63 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>3fdae284-855e-4ff7-8465-51449be0e4bf</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="QuestPDF" Version="2026.8.0" />
+    <PackageReference Include="Stripe.net" Version="52.3.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.0" />
+  </ItemGroup>
+
+	<ItemGroup>
+	  <Content Update="web.config">
+		<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+	  </Content>
+
+	  <Content Update="appsettings.json">
+		<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+	  </Content>
+
+	  <Content Update="appsettings.Production.json">
+		<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+	  </Content>
+
+	  <Content Update="appsettings.Development.json">
+		<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+	  </Content>
+	</ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.Local.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\eLotto.Core\eLotto.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="eLotto.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Fonts\Oxanium\Oxanium-Regular.ttf" LogicalName="eLotto.Resources.Fonts.Oxanium-Regular.ttf" />
+    <EmbeddedResource Include="Resources\Fonts\Play\Play-Regular.ttf" LogicalName="eLotto.Resources.Fonts.Play-Regular.ttf" />
+    <EmbeddedResource Include="Resources\Fonts\ShareTech\ShareTech-Regular.ttf" LogicalName="eLotto.Resources.Fonts.ShareTech-Regular.ttf" />
+  </ItemGroup>
+</Project>

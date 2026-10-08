@@ -1,0 +1,32 @@
+{
+  "id": "/",
+  "name": "Sorteos Global Broker",
+  "short_name": "Sorteos GB",
+  "description": "Sorteos, boletos y saldo de Sorteos Global Broker.",
+  "lang": "es-MX",
+  "start_url": "/starter/index",
+  "scope": "/",
+  "display": "standalone",
+  "related_applications": [{ "platform": "webapp", "url": "/manifest.webmanifest" }],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/assets/images/sorteos-app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/sorteos-app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "background_color": "#171e26",
+  "theme_color": "#171e26"
+}
+
+
+
+

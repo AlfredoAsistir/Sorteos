@@ -1,0 +1,20 @@
+:host {
+  display: block;
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.reschedule-eyebrow {
+  display: block;
+  margin-bottom: 5px;
+  color: #b45309;
+  font-size: .76rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+h2 { margin: 0 0 14px; font-size: clamp(1.45rem, 4vw, 2.2rem); }
+p { margin: 0 0 10px; line-height: 1.5; }
+p:last-child { margin-bottom: 0; }

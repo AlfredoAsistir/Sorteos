@@ -1,0 +1,26 @@
+<footer class="app-footer">
+  <div class="app-footer__content">
+    <span class="app-footer__mark" aria-hidden="true">
+      <mat-icon>confirmation_number</mat-icon>
+    </span>
+    <strong>{{ appInformation.appTitle }}</strong>
+    <div class="app-footer__details">
+      <span>
+        <mat-icon>location_on</mat-icon>
+        {{ appInformation.appLocation }}
+      </span>
+      <a [href]="appInformation.urlWhatsApp" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp">
+        <mat-icon>chat</mat-icon>
+        WhatsApp
+      </a>
+      <a [href]="appInformation.urlEmail" aria-label="Enviar correo electrónico">
+        <mat-icon>email</mat-icon>
+        {{ appInformation.appEmail }}
+      </a>
+      <a routerLink="/starter/preguntas-frecuentes" aria-label="Abrir preguntas frecuentes">
+        <mat-icon>help_outline</mat-icon>
+        Preguntas frecuentes
+      </a>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,108 @@
+.scratchcards-panel {
+  margin-bottom: 24px;
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+.scratchcards-panel__summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.scratchcards-panel__summary > button {
+  grid-column: 1 / -1;
+  min-height: 46px;
+}
+
+.scratchcards-panel__icon {
+  display: grid;
+  width: 50px;
+  height: 50px;
+  place-items: center;
+  border-radius: 16px;
+  background: rgba(93, 63, 211, .12);
+  color: #5d3fd3;
+}
+
+.scratchcards-panel__summary span {
+  color: #5d3fd3;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.scratchcards-panel__summary h2 {
+  margin: 2px 0;
+  font-size: clamp(1.1rem, 4vw, 1.45rem);
+}
+
+.scratchcards-panel__summary p {
+  margin: 0;
+  opacity: .7;
+}
+
+.scratchcards-panel__summary .scratchcards-panel__help {
+  display: inline-block;
+  margin-top: 5px;
+  color: #5d3fd3;
+  font-size: .82rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.scratchcards-panel__summary .scratchcards-panel__help:hover { text-decoration: underline; }
+
+.scratchcards-panel__pending {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.scratchcards-panel__pending button {
+  display: flex;
+  min-width: 0;
+  padding: 10px 12px;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid rgba(93, 63, 211, .2);
+  border-radius: 12px;
+  background: rgba(93, 63, 211, .05);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.scratchcards-panel__pending span {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.scratchcards-panel__pending strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scratchcards-panel__pending small {
+  opacity: .65;
+}
+
+@media (min-width: 720px) {
+  .scratchcards-panel__summary {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .scratchcards-panel__summary > button {
+    grid-column: auto;
+    min-width: 160px;
+  }
+
+  .scratchcards-panel__pending {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

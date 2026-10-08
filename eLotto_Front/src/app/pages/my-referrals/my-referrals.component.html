@@ -1,0 +1,112 @@
+<main class="referrals-page">
+  <header class="page-heading">
+    <div class="page-heading__icon"><mat-icon>groups</mat-icon></div>
+    <div>
+      <span>Programa de referidos</span>
+      <p>Consulta tus invitaciones directas y los beneficios que ya generaron.</p>
+    </div>
+  </header>
+
+  @if (loaded && data?.directReferralsCount === 0) {
+    <mat-card class="empty-state cardWithShadow">
+      <mat-card-content>
+        <mat-icon>group_add</mat-icon>
+        <h2>Aún no tienes referidos</h2>
+        <p>Comparte tu enlace personal para invitar a un amigo.</p>
+        <a mat-flat-button color="primary" routerLink="/starter/invitar-amigo">
+          <mat-icon>person_add</mat-icon>
+          Invitar a un amigo
+        </a>
+      </mat-card-content>
+    </mat-card>
+  } @else if (data; as result) {
+    <section class="summary" aria-label="Resumen de referidos">
+      <article>
+        <mat-icon>people</mat-icon>
+        <span>Referidos directos</span>
+        <strong>{{ result.directReferralsCount | number }}</strong>
+      </article>
+      <article>
+        <mat-icon>account_balance_wallet</mat-icon>
+        <span>Bonos por depósitos referidos</span>
+        <strong>{{ result.depositRewardsTotal | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
+      </article>
+      <article>
+        <mat-icon>paid</mat-icon>
+        <span>Premios por referidos</span>
+        <strong>{{ result.paidCashRewardsTotal | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
+      </article>
+    </section>
+
+    <section class="content-section">
+      <h2><mat-icon>groups</mat-icon> Mis referidos</h2>
+      <div class="referral-grid">
+        @for (referral of result.referrals; track $index) {
+          <mat-card class="referral-card">
+            <mat-card-content>
+              <div class="referral-card__heading">
+                <span class="avatar"><mat-icon>person</mat-icon></span>
+                <div>
+                  <h3>{{ referral.name }}</h3>
+                  <time [attr.datetime]="referral.registeredAt">
+                    Registro: {{ referral.registeredAt | serverLocalDate:'dd/MM/yyyy' }}
+                  </time>
+                </div>
+              </div>
+              <div class="referral-stats">
+                <span><strong>{{ referral.depositRewardsCount }}</strong> bonos generados</span>
+                <span><strong>{{ referral.winnerCashRewardsCount }}</strong> premios como ganador</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    </section>
+
+    <section class="content-section">
+      <h2><mat-icon>account_balance_wallet</mat-icon> Bonos por depósitos</h2>
+      @if (result.depositRewards.length === 0) {
+        <p class="section-empty">Tus referidos todavía no han generado bonos por depósitos.</p>
+      } @else {
+        <div class="history-list">
+          @for (reward of result.depositRewards; track $index) {
+            <article class="history-card">
+              <div class="history-card__title">
+                <strong>{{ reward.referredUserName }}</strong>
+                <time [attr.datetime]="reward.createdAt">{{ reward.createdAt | serverLocalDate:'dd/MM/yyyy' }}</time>
+              </div>
+              <div class="history-values">
+                <span>Depósito<strong>{{ reward.depositAmount | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong></span>
+                <span>Porcentaje<strong>{{ reward.percentageApplied | number:'1.0-2' }}%</strong></span>
+                <span>Bono recibido<strong class="positive">+{{ reward.rewardAmount | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong></span>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="content-section">
+      <h2><mat-icon>emoji_events</mat-icon> Premios por referido</h2>
+      @if (result.cashRewards.length === 0) {
+        <p class="section-empty">Aún no tienes premios generados por referidos ganadores.</p>
+      } @else {
+        <div class="history-list">
+          @for (reward of result.cashRewards; track $index) {
+            <article class="history-card cash-reward">
+              <div class="history-card__title">
+                <strong>{{ reward.winnerUserName }}</strong>
+                <time [attr.datetime]="reward.createdAt">{{ reward.createdAt | serverLocalDate:'dd/MM/yyyy' }}</time>
+              </div>
+              <div class="history-values cash-reward__values">
+                <span>Boletos requeridos<strong>{{ reward.requiredTickets | number }}</strong></span>
+                <span>Boletos comprados<strong>{{ reward.actualTickets | number }}</strong></span>
+                <span>Premio<strong class="positive">{{ reward.rewardAmount | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong></span>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+  }
+</main>

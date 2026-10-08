@@ -1,0 +1,9 @@
+<span class="reschedule-eyebrow">Sorteo pendiente</span>
+<h2>El sorteo se reprogramará</h2>
+<p>Estaba programado para el <strong>{{ scheduledDate }}</strong>.</p>
+@if (reason === 'reprogramar') {
+  <p>No se alcanzó la venta mínima: se vendió el {{ soldPercentage | number:'1.0-2' }}% de los boletos y se requería el {{ lottery.porcentajeMinimoVenta | number:'1.0-2' }}%.</p>
+} @else {
+  <p>No fue posible validar la venta de boletos.</p>
+}
+<p>Gracias por tu comprensión. Mantente atento a la nueva fecha del sorteo.</p>

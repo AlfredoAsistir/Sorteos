@@ -1,0 +1,6 @@
+@if (labelAbove) { <label class="numeric-input__label" [for]="inputId">{{ label }}</label> }
+<mat-form-field appearance="outline">
+  @if (!labelAbove) { <mat-label>{{ label }}</mat-label> }
+  <input matInput [id]="inputId" type="text" [attr.inputmode]="decimalDigits ? 'decimal' : 'numeric'" [value]="value" [disabled]="disabled" (input)="input($event)" (blur)="blur()" />
+  @if (ngControl?.control?.touched && ngControl?.control?.invalid) { <mat-error>Ingresa un valor válido.</mat-error> }
+</mat-form-field>

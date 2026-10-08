@@ -1,0 +1,13 @@
+<nav class="user-navigation" aria-label="Navegación principal">
+  <div class="user-navigation-container">
+    <a class="user-brand" routerLink="/starter/index" aria-label="Ir al sorteo">{{ appName }}</a>
+    <div class="user-menu">
+      @for (item of items; track item.route) {
+        <a [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </div>
+  </div>
+</nav>

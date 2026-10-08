@@ -1,0 +1,6 @@
+:host { display: block; }
+.transparency-download { margin-top: 20px; padding-top: 16px; border-top: 1px solid currentColor; }
+.transparency-download p { margin: 0 0 10px; }
+.transparency-download__button { border: 0; border-radius: 8px; padding: 10px 16px; background: #0f766e; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+.transparency-download__button:hover { background: #115e59; }
+.transparency-download__button:disabled { opacity: .65; cursor: wait; }

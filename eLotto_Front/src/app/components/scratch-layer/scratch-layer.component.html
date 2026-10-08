@@ -1,0 +1,20 @@
+<div class="scratch-layer" [class.scratch-layer--revealed]="completed || forceReveal">
+  <div
+    class="scratch-layer__content"
+    [class.scratch-layer__content--hidden]="hideContentUntilRevealed && !completed && !forceReveal"
+    [attr.aria-hidden]="hideContentUntilRevealed && !completed && !forceReveal ? true : null"
+  >
+    <ng-content />
+  </div>
+  <canvas
+    #scratchCanvas
+    class="scratch-layer__canvas"
+    role="img"
+    [attr.aria-label]="ariaLabel"
+    [attr.aria-hidden]="completed || forceReveal"
+    (pointerdown)="onPointerDown($event)"
+    (pointermove)="onPointerMove($event)"
+    (pointerup)="onPointerEnd($event)"
+    (pointercancel)="onPointerEnd($event)"
+  ></canvas>
+</div>

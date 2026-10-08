@@ -1,0 +1,140 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.wallet-balance-button {
+  --wallet-base-color: #5d3fd3;
+  --wallet-base-border-color: rgba(93, 63, 211, 0.32);
+  position: relative;
+  overflow: visible;
+  min-width: auto !important;
+  margin-right: 6px;
+  padding: 0 12px !important;
+  border: 1px solid var(--wallet-animation-border-color, var(--wallet-base-border-color)) !important;
+  border-radius: 18px !important;
+  color: var(--wallet-animation-color, var(--wallet-base-color)) !important;
+
+  .mdc-button__label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  &.zero-balance {
+    --wallet-base-color: #b42318;
+    --wallet-base-border-color: rgba(180, 35, 24, 0.5);
+    background: rgba(254, 228, 226, 0.75) !important;
+
+    &::before {
+      content: 'double_arrow';
+      position: absolute;
+      top: -11px;
+      left: -9px;
+      z-index: 2;
+      width: 32px;
+      height: 32px;
+      color: currentColor;
+      font-family: 'Material Icons';
+      font-size: 32px;
+      font-weight: normal;
+      line-height: 1;
+      pointer-events: none;
+      filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .2));
+      animation: wallet-zero-pointer .85s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes wallet-zero-pointer {
+  0%, 100% { transform: rotate(38deg) translateX(-2px); }
+  50% { transform: rotate(38deg) translateX(5px); }
+}
+
+@media (max-width: 480px) {
+  .wallet-balance-button {
+    padding: 0 8px !important;
+    font-size: 12px;
+
+    &.zero-balance::before {
+      top: -9px;
+      left: -7px;
+      width: 28px;
+      height: 28px;
+      font-size: 28px;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wallet-balance-button.zero-balance::before {
+    animation: none;
+  }
+}
+
+.wallet-credit-animation {
+  position: absolute;
+  right: 8px;
+  bottom: calc(100% + 2px);
+  z-index: 10;
+  color: #16803b;
+  font-size: .9rem;
+  font-weight: 900;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, .9);
+  pointer-events: none;
+  animation: wallet-credit-rise 1.75s ease-out forwards;
+}
+
+@keyframes wallet-credit-rise {
+  0% { opacity: 0; transform: translateY(8px) scale(.9); }
+  18% { opacity: 1; transform: translateY(0) scale(1.05); }
+  100% { opacity: 0; transform: translateY(-34px) scale(1); }
+}
+
+.scratchcard-dialog-panel .mat-mdc-dialog-surface {
+  max-height: 100dvh;
+  overflow: hidden;
+  border-radius: 22px;
+}
+
+@media (max-width: 520px) {
+  .scratchcard-dialog-panel {
+    max-width: 100vw !important;
+  }
+
+  .scratchcard-dialog-panel .mat-mdc-dialog-surface {
+    border-radius: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wallet-credit-animation {
+    animation: none;
+    opacity: 1;
+  }
+}
+.wallet-balance-button.wallet-prize-flash {
+  animation: wallet-bank-prize-flash 4s step-end 1 both;
+}
+
+@keyframes wallet-bank-prize-flash {
+  0%, 16.666%, 33.333%, 50%, 66.666%, 83.333% {
+    --wallet-animation-color: #159447;
+    --wallet-animation-border-color: rgba(21, 148, 71, 0.75);
+    filter: drop-shadow(0 0 4px rgba(21, 148, 71, 0.45));
+  }
+
+  8.333%, 25%, 41.666%, 58.333%, 75%, 91.666%, 100% {
+    --wallet-animation-color: var(--wallet-base-color);
+    --wallet-animation-border-color: var(--wallet-base-border-color);
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wallet-balance-button.wallet-prize-flash {
+    animation: none;
+  }
+}

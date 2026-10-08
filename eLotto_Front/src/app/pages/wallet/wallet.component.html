@@ -1,0 +1,202 @@
+<section class="wallet-page">
+  <div class="wallet-grid">
+    <mat-card class="balance-card">
+      <mat-card-content>
+        <span class="eyebrow">Saldo disponible</span>
+        <div class="balance">{{ walletService.formatAmount(balance, currency) }}</div>
+        <span class="currency">{{ currency }}</span>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="deposit-card">
+      <mat-card-header>
+        <mat-card-title>Agregar saldo</mat-card-title>
+        <a mat-button routerLink="/starter/preguntas-frecuentes" fragment="depositos">
+          <mat-icon>help_outline</mat-icon>
+          ¿Cómo funcionan los depósitos?
+        </a>
+      </mat-card-header>
+      <mat-card-content>
+        @if (depositBlocked) {
+          <div class="deposit-blocked" role="status">
+            <mat-icon>lock_clock</mat-icon>
+            <div><strong>Depósitos temporalmente cerrados</strong><span>{{ depositBlockedMessage }}</span></div>
+          </div>
+        }
+        <div #quickAmounts class="quick-amounts">
+          @for (value of quickDepositAmounts; track value) {
+            <button mat-stroked-button class="quick-amount" type="button"
+              [class.selected]="amount.value === value"
+              [disabled]="processing || cardReady || depositCompleted || depositBlocked"
+              (click)="selectAmount(value)">${{ value }}</button>
+          }
+        </div>
+        @if (amount.valid && showMobileDepositSummary) {
+          <div class="mobile-deposit-summary" role="group" aria-label="Resumen del depósito">
+            <span class="mobile-deposit-summary__item">
+              <i-tabler name="cash" class="icon-20" aria-hidden="true"></i-tabler>
+              <strong>{{ walletService.formatAmount(amount.value, currency) }} {{ currency }}</strong>
+            </span>
+            <span class="mobile-deposit-summary__divider" aria-hidden="true"></span>
+            <span class="mobile-deposit-summary__item mobile-deposit-summary__method">
+              <i-tabler name="wallet" class="icon-20" aria-hidden="true"></i-tabler>
+              <span>{{ selectedPaymentMethodLabel }}</span>
+            </span>
+          </div>
+        }
+        <mat-form-field appearance="outline" class="full-width amount-field">
+          <mat-label>Monto en MXN</mat-label>
+          <span matTextPrefix>$&nbsp;</span>
+          <input matInput type="number" [min]="minimumDepositAmount" [max]="maximumDepositAmount" step="0.01" [readonly]="cardReady" [formControl]="amount" />
+          <mat-hint>Entre {{ walletService.formatAmount(minimumDepositAmount, currency) }} y {{ walletService.formatAmount(maximumDepositAmount, currency) }} {{ currency }}</mat-hint>
+        </mat-form-field>
+        <div class="payment-choice" aria-label="Método de pago">
+          <span class="choice-label">¿Cómo quieres depositar?</span>
+          <div class="payment-options">
+            <button type="button" class="payment-option" [class.selected]="selectedPaymentMethod === 'bank_transfer'"
+              [disabled]="processing || cardReady || depositCompleted || depositBlocked" [attr.aria-pressed]="selectedPaymentMethod === 'bank_transfer'"
+              (click)="selectPaymentMethod('bank_transfer')">
+              <i-tabler name="building-bank" class="icon-24"></i-tabler>
+              <span><strong>Transferencia SPEI</strong><small>Recibe una CLABE e instrucciones</small></span>
+              <span class="payment-option__fee">0 comisión</span>
+            </button>
+            <button type="button" class="payment-option" [class.selected]="selectedPaymentMethod === 'oxxo'"
+              [disabled]="processing || cardReady || depositCompleted || depositBlocked" [attr.aria-pressed]="selectedPaymentMethod === 'oxxo'"
+              (click)="selectPaymentMethod('oxxo')">
+              <i-tabler name="building-store" class="icon-24"></i-tabler>
+              <span><strong>OXXO</strong><small>Genera un vale para pagar en efectivo</small></span>
+              <span class="payment-option__fee payment-option__fee--oxxo">Comisión OXXO</span>
+            </button>
+            <button type="button" class="payment-option" [class.selected]="selectedPaymentMethod === 'card'"
+              [disabled]="processing || cardReady || depositCompleted || depositBlocked" [attr.aria-pressed]="selectedPaymentMethod === 'card'"
+              (click)="selectPaymentMethod('card')">
+              <i-tabler name="credit-card" class="icon-24"></i-tabler>
+              <span><strong>Tarjeta</strong><small>Acreditación inmediata</small></span>
+              <span class="payment-option__fee">0 comisión</span>
+            </button>
+          </div>
+        </div>
+        @if (selectedPaymentMethod !== 'card' && !cardReady) {
+          <div class="billing-details">
+            <p>Datos para tu depósito</p>
+            <mat-form-field appearance="outline" class="full-width amount-field">
+              <mat-label>Nombre completo</mat-label>
+              <input matInput autocomplete="name" [formControl]="billingName" />
+              @if (billingName.touched && billingName.hasError('required')) {
+                <mat-error>Ingresa tu nombre completo.</mat-error>
+              } @else if (billingName.touched && billingName.hasError('incompleteName')) {
+                <mat-error>Escribe al menos dos palabras, por ejemplo: José Alfredo.</mat-error>
+              } @else if (billingName.touched && billingName.hasError('invalidNameCharacters')) {
+                <mat-error>El nombre solo puede contener letras, espacios, puntos, apóstrofes o guiones.</mat-error>
+              } @else if (billingName.touched && billingName.hasError('maxlength')) {
+                <mat-error>El nombre completo es demasiado largo.</mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width amount-field">
+              <mat-label>Correo electrónico</mat-label>
+              <input matInput type="email" autocomplete="email" [formControl]="billingEmail" />
+              @if (billingEmail.touched && billingEmail.invalid) { <mat-error>Ingresa un correo electrónico válido.</mat-error> }
+            </mat-form-field>
+          
+          </div>
+        }
+        @if (cardReady && selectedPaymentMethod !== 'card') {
+          <div class="async-payment-hint" role="note">
+            <i-tabler name="clock" class="icon-20"></i-tabler>
+            <span>
+              Tu saldo se actualizará automáticamente cuando Stripe confirme el pago.
+              No cierres las instrucciones hasta guardar los datos necesarios.
+            </span>
+          </div>
+        }
+        @if (cardReady && paymentEntryMode === 'saved') {
+          <div class="payment-method-hint" role="note">
+            <i-tabler name="info-circle" class="icon-20"></i-tabler>
+            <div>
+              <strong>¿Quieres cambiar de tarjeta?</strong>
+              <span>Haz clic en la tarjeta de abajo para ver tus otras tarjetas o añadir una nueva.</span>
+            </div>
+            <i-tabler name="arrow-down" class="hint-arrow icon-20"></i-tabler>
+          </div>
+        }
+        @if (cardReady && paymentEntryMode === 'new') {
+          <p class="status success payment-entry-hint" role="note">
+            Ingresa los datos de pago y presiona Depositar.
+          </p>
+        }
+        @if (selectedPaymentMethod === 'card') {
+          <div id="stripe-payment-element" class="payment-element"></div>
+        }
+        @if (error) { <p class="status error" role="alert">{{ error }}</p> }
+        @if (message && instructionUrl) {
+          <div class="status success instruction-status" aria-live="polite">
+            <span class="instruction-status-message">{{ message }}</span>
+            <span class="instruction-status-hint">
+              <mat-icon class="instruction-arrow" aria-hidden="true">arrow_downward</mat-icon>
+              <span>{{ instructionHint }}</span>
+              <mat-icon class="instruction-arrow" aria-hidden="true">arrow_downward</mat-icon>
+            </span>
+          </div>
+        } @else if (message) {
+          <p class="status success" aria-live="polite">{{ message }}</p>
+        }
+        @if (instructionUrl) {
+          <a mat-stroked-button class="instructions-link" [href]="instructionViewUrl" target="_blank" rel="noopener noreferrer">
+            {{ instructionLabel }}
+          </a>
+        }
+        <button mat-flat-button color="primary" class="deposit-button" type="button"
+          [disabled]="processing || depositCompleted || depositBlocked || amount.invalid || (selectedPaymentMethod !== 'card' && (billingName.invalid || billingEmail.invalid))" (click)="deposit()">
+          @if (processing) { <mat-spinner diameter="20"></mat-spinner> } @else { {{ actionLabel }} }
+        </button>
+        <aside class="stripe-trust" aria-labelledby="stripe-trust-title">
+          <div class="stripe-trust__summary">
+            <span class="stripe-trust__icon" aria-hidden="true">
+              <i-tabler name="shield-lock" class="icon-24"></i-tabler>
+            </span>
+            <div class="stripe-trust__copy">
+              <strong id="stripe-trust-title">Tu operación se procesa de forma segura con Stripe</strong>
+            </div>
+            <a class="stripe-badge" href="https://stripe.com" target="_blank" rel="noopener noreferrer"
+              aria-label="Conocer más sobre Stripe; se abre en una pestaña nueva">
+              <img src="assets/images/payments/powered-by-stripe.svg" width="150" height="34"
+                alt="Procesado por Stripe" />
+            </a>
+          </div>
+          <ul class="stripe-trust__features" aria-label="Características de seguridad del depósito">
+            <li><i-tabler name="lock" class="icon-16" aria-hidden="true"></i-tabler><span>Conexión segura HTTPS</span></li>
+            <li><i-tabler name="shield-check" class="icon-16" aria-hidden="true"></i-tabler><span>Procesado por Stripe</span></li>
+            <li><i-tabler name="circle-check" class="icon-16" aria-hidden="true"></i-tabler><span>Confirmación automática del depósito</span></li>
+          </ul>
+        </aside>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <mat-card class="transactions-card">
+    <mat-card-header><mat-card-title>Movimientos recientes</mat-card-title></mat-card-header>
+    <mat-card-content>
+      @if (transactions.length === 0) {
+        <p class="empty">Aún no tienes movimientos.</p>
+      } @else {
+        <div class="transactions">
+          @for (transaction of transactions; track transaction.id) {
+            <div class="transaction-row">
+              <div>
+                <strong
+                  class="transaction-description"
+                  [class.transaction-description--prize]="transaction.type === 5"
+                  [class.transaction-description--deposit]="transaction.type === 1 || transaction.type === 6"
+                  [class.transaction-description--purchase]="transaction.type === 2"
+                >{{ transactionLabel(transaction.type, transaction.description) }}</strong>
+                @if (transaction.userMessage) { <span class="stripe-message">{{ transaction.userMessage }}</span> }
+                <span>{{ transaction.createdAt | serverLocalDate: 'medium' }}</span>
+              </div>
+              <div class="transaction-value"><strong>{{ transaction.type === 2 ? '-' : '+' }}{{ transaction.amount | currency: currency }}</strong><span>{{ statusLabel(transaction.status) }}</span></div>
+            </div>
+          }
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</section>

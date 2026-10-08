@@ -1,0 +1,101 @@
+<mat-toolbar class="topbar horizontal-topbar">
+  <div class="container d-flex align-items-center" [class.user-header-container]="currentRole === 'User'">
+  @if(showMenuButton) {
+    @if(showToggle) {
+      <button mat-icon-button (click)="toggleCollapsed.emit()" class="d-flex justify-content-center">
+        <i-tabler name="menu-2" class="icon-20 d-flex"></i-tabler>
+      </button>
+    } @else {
+      <button mat-icon-button (click)="toggleMobileNav.emit()" class="d-flex justify-content-center">
+        <i-tabler name="menu-2" class="icon-20 d-flex"></i-tabler>
+      </button>
+    }
+  }
+
+  @if(currentRole === 'User') {
+    <a mat-icon-button class="social-header-link facebook-link"
+      [href]="appInformation.urlFacebook" target="_blank" rel="noopener noreferrer"
+      aria-label="Abrir Facebook oficial">
+      <i-tabler name="brand-facebook" class="icon-24 d-flex"></i-tabler>
+    </a>
+    <a mat-icon-button class="social-header-link whatsapp-link"
+      [href]="appInformation.urlWhatsApp" target="_blank" rel="noopener noreferrer"
+      aria-label="Enviar mensaje por WhatsApp">
+      <i-tabler name="brand-whatsapp" class="icon-24 d-flex"></i-tabler>
+    </a>
+  }
+
+  <span class="flex-1-auto"></span>
+  @if(currentRole === 'User' && walletService.walletLoaded()) {
+    <button mat-button type="button" class="wallet-balance-button"
+      [class.zero-balance]="walletService.balance() === 0"
+      [class.wallet-prize-flash]="walletService.creditAnimation() !== null"
+      aria-label="Abrir saldo" (click)="openWallet()">
+      <i-tabler name="building-bank" class="icon-20 d-flex"></i-tabler>
+      <span #balanceAmount>{{ walletService.formatAmount(walletService.balance()) }}</span>
+      @if (walletService.creditAnimation(); as credit) {
+        <span class="wallet-credit-animation" aria-live="polite">+{{ walletService.formatAmount(credit.amount) }}</span>
+      }
+    </button>
+  }
+
+  <a mat-button class="help-header-link" routerLink="/starter/preguntas-frecuentes"
+    aria-label="Abrir preguntas frecuentes">
+    <mat-icon>help_outline</mat-icon>
+    <span>Ayuda</span>
+  </a>
+
+  @if(options.theme=='light'){
+    <button mat-icon-button aria-label="Cambiar tema" class="d-flex justify-content-center" (click)="setlightDark('dark')">
+      <i-tabler class="d-flex icon-22" name="moon"></i-tabler>
+    </button>
+  } @else {
+    <button mat-icon-button aria-label="Cambiar tema" class="d-flex justify-content-center" (click)="setlightDark('light')">
+      <i-tabler class="d-flex icon-22" name="sun"></i-tabler>
+    </button>
+  }
+
+  <button mat-icon-button [matMenuTriggerFor]="profilemenu" aria-label="Usuario" class="m-l-8 profile-menu-trigger">
+    <span class="profile-avatar profile-avatar--button" aria-hidden="true">
+      <i-tabler name="user-circle"></i-tabler>
+    </span>
+  </button>
+  <mat-menu #profilemenu="matMenu" class="topbar-dd cardWithShadow">
+    <div class="p-x-24 p-y-20">
+      <h6 class="f-s-16 f-w-600 m-0">Usuario</h6>
+      <div class="d-flex align-items-center p-t-16">
+        <span class="profile-avatar profile-avatar--menu" aria-hidden="true">
+          <i-tabler name="user-circle"></i-tabler>
+        </span>
+        <div class="m-l-12">
+          <h6 class="f-s-14 f-w-600 m-0">{{ currentUser }}</h6>
+          <span class="f-s-13 text-body">Cuenta de usuario</span>
+        </div>
+      </div>
+    </div>
+    <div class="p-x-24 p-b-20">
+      @if (currentRole === 'User') {
+        <a mat-menu-item routerLink="/starter/invitar-amigo">
+          <mat-icon>person_add</mat-icon>
+          <span>Invitar a un amigo</span>
+        </a>
+        <a mat-menu-item routerLink="/starter/mis-referidos">
+          <mat-icon>groups</mat-icon>
+          <span>Mis referidos</span>
+        </a>
+        <mat-divider class="m-y-12"></mat-divider>
+      }
+      @if (appInstallation.available()) {
+        <button mat-menu-item type="button" (click)="installApplication()">
+          <mat-icon>install_mobile</mat-icon>
+          <span>Instalar aplicación</span>
+        </button>
+        <mat-divider class="m-y-12"></mat-divider>
+      }
+      <button mat-stroked-button color="primary" class="w-100" (click)="logoff()">Cerrar sesión</button>
+    </div>
+  </mat-menu>
+  </div>
+</mat-toolbar>
+
+

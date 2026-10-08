@@ -1,0 +1,84 @@
+<main class="tickets-page">
+
+  @if (loaded && noCurrentLottery) {
+    <mat-card class="empty-state cardWithShadow">
+      <mat-card-content>
+        <mat-icon>event_busy</mat-icon>
+        <h2>No hay un sorteo vigente</h2>
+        <p>Cuando esté disponible el siguiente sorteo, aquí aparecerán únicamente sus compras.</p>
+      </mat-card-content>
+    </mat-card>
+  } @else if (loaded && tickets && tickets.compras.length === 0) {
+    <mat-card class="empty-state cardWithShadow">
+      <mat-card-content>
+        <mat-icon>local_activity</mat-icon>
+        <h2>Aún no tienes boletos en este sorteo</h2>
+        <p>Tus compras confirmadas de {{ tickets.nombreSorteo }} aparecerán aquí.</p>
+      </mat-card-content>
+    </mat-card>
+  } @else if (tickets && tickets.compras.length > 0) {
+    <section class="tickets-overview" aria-label="Resumen de compras vigentes">
+      <div>
+        <mat-icon>receipt_long</mat-icon>
+        <span>Compras</span>
+        <strong>{{ tickets.compras.length | number }}</strong>
+      </div>
+      <div>
+        <mat-icon>confirmation_number</mat-icon>
+        <span>Boletos confirmados</span>
+        <strong>{{ totalTickets | number }}</strong>
+      </div>
+      <div>
+        <mat-icon>payments</mat-icon>
+        <span>Importe total</span>
+        <strong>{{ totalAmount | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
+      </div>
+    </section>
+
+    <section class="purchase-list" aria-label="Compras confirmadas">
+      @for (purchase of tickets.compras; track purchase.folioCompra) {
+        <article class="purchase-card">
+          <header class="purchase-header">
+            <div>
+              <span class="purchase-label">Compra confirmada</span>
+              <h2>Folio {{ purchase.folioCompra }}</h2>
+              <p><mat-icon>calendar_today</mat-icon>{{ purchase.fechaCompra | serverLocalDate:'dd/MM/yyyy, HH:mm' }}</p>
+            </div>
+            <span class="confirmed-badge"><mat-icon>verified</mat-icon>Pago confirmado</span>
+          </header>
+
+          <div class="purchase-metrics">
+            <div><span>Boletos</span><strong>{{ purchase.cantidadBoletos | number }}</strong></div>
+            <div><span>Precio por boleto</span><strong>{{ purchase.precioBoleto | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong></div>
+            <div><span>Importe</span><strong>{{ purchase.importe | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong></div>
+          </div>
+
+          <details class="ticket-details">
+            <summary>
+              <span><mat-icon>grid_view</mat-icon>Ver números oficiales</span>
+              <span>{{ purchase.cantidadBoletos | number }} boletos <mat-icon>expand_more</mat-icon></span>
+            </summary>
+            <div class="ticket-numbers" tabindex="0" [attr.aria-label]="'Números del folio ' + purchase.folioCompra">
+              @for (number of purchase.numeros; track number) {
+                <span>{{ number }}</span>
+              }
+            </div>
+          </details>
+
+          <footer class="purchase-actions">
+            <p><mat-icon>picture_as_pdf</mat-icon>Recibirás nuevamente el PDF con todos los números de este folio.</p>
+            <button
+              mat-flat-button
+              type="button"
+              class="whatsapp-button"
+              [disabled]="whatsAppBlocked"
+              (click)="resendByWhatsApp(purchase)">
+              <mat-icon>{{ sendingFolio === purchase.folioCompra ? 'sync' : 'send' }}</mat-icon>
+              {{ resendButtonLabel(purchase.folioCompra) }}
+            </button>
+          </footer>
+        </article>
+      }
+    </section>
+  }
+</main>

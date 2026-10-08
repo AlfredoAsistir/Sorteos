@@ -1,0 +1,413 @@
+:host {
+  display: block;
+}
+
+.scratchcard-dialog {
+  position: relative;
+  width: min(600px, calc(100vw - 32px));
+  max-height: min(900px, calc(100dvh - 24px));
+  padding: 16px;
+  overflow: auto;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.scratchcard-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.scratchcard-dialog__header-actions {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.auto-play-button {
+  min-height: 36px;
+  border-color: rgba(93, 63, 211, .4);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(93, 63, 211, .08), rgba(93, 63, 211, .16));
+  color: #5135bd;
+  font-size: .78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.auto-play-button--active {
+  border-color: rgba(21, 148, 71, .5);
+  background: linear-gradient(135deg, rgba(21, 148, 71, .1), rgba(21, 148, 71, .2));
+  color: #126d36;
+}
+
+.auto-play-button mat-icon {
+  margin-right: 4px;
+}
+
+.auto-play-button__label--compact,
+.auto-play-speed__label--compact {
+  display: none;
+}
+
+.auto-play-speed {
+  display: flex;
+  flex: 0 0 auto;
+  width: fit-content;
+  padding: 4px;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid rgba(21, 148, 71, .48);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(21, 148, 71, .13), rgba(21, 148, 71, .24));
+}
+
+.auto-play-speed__label {
+  padding: 0 6px;
+  color: #159447;
+  font-size: .7rem;
+  font-weight: 700;
+}
+
+.auto-play-speed__button {
+  min-width: 38px;
+  min-height: 30px;
+  padding: 3px 8px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: #159447;
+  cursor: pointer;
+  font: inherit;
+  font-size: .76rem;
+  font-weight: 800;
+  transition: background-color .18s ease, color .18s ease, transform .18s ease;
+}
+
+.auto-play-speed__button:hover {
+  background: rgba(21, 148, 71, .2);
+}
+
+.auto-play-speed__button--active {
+  border-color: rgba(21, 148, 71, .75);
+  background: #159447;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(21, 148, 71, .35);
+}
+
+.auto-play-speed__button:focus-visible {
+  outline: 2px solid #159447;
+  outline-offset: 2px;
+}
+
+.scratchcard-dialog__header h2 {
+  margin: 3px 0;
+  font-size: clamp(1.35rem, 5vw, 1.85rem);
+}
+
+.scratchcard-dialog__header small,
+.scratchcard-status small {
+  opacity: .7;
+}
+
+.scratchcard-dialog__eyebrow {
+  color: #5d3fd3;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.scratchcard-dialog__instructions {
+  margin: 14px 0;
+  line-height: 1.45;
+}
+
+.scratchcard {
+  position: relative;
+  padding: clamp(12px, 3vw, 18px);
+  overflow: hidden;
+  border: 1px solid rgba(93, 63, 211, .2);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255, 255, 255, .75), transparent 26%),
+    linear-gradient(145deg, #f5f1ff, #e5eefb);
+  box-shadow: 0 14px 34px rgba(40, 48, 72, .14);
+}
+
+.prize-area {
+  margin: 0 auto 18px;
+  text-align: center;
+}
+
+.prize-area > span {
+  display: block;
+  margin-bottom: 7px;
+  color: #4b5563;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.prize-scratch-zone {
+  width: min(240px, 100%);
+  height: 68px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 2px dashed rgba(93, 63, 211, .35);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .82);
+}
+
+.prize-scratch-zone strong {
+  color: #18743c;
+  font-size: clamp(1.55rem, 7vw, 2.35rem);
+}
+
+
+.scratch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(6px, 1.5vw, 10px);
+  width: min(360px, 100%);
+  margin: 0 auto;
+}
+
+.scratch-cell {
+  aspect-ratio: 1;
+  min-width: 0;
+  overflow: hidden;
+  border: 2px solid rgba(93, 63, 211, .18);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .9);
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+
+.scratch-cell mat-icon {
+  width: clamp(30px, 8vw, 48px);
+  height: clamp(30px, 8vw, 48px);
+  color: #5d3fd3;
+  font-size: clamp(30px, 8vw, 48px);
+}
+
+.scratch-cell--winner {
+  z-index: 1;
+  border-color: #159447;
+  box-shadow: 0 0 0 4px rgba(21, 148, 71, .2), 0 8px 20px rgba(21, 148, 71, .24);
+  transform: scale(1.04);
+}
+
+.scratch-cell--winner mat-icon {
+  color: #159447;
+}
+
+.unknown-symbol {
+  opacity: .28;
+}
+
+.scratchcard-status {
+  display: flex;
+  min-height: 48px;
+  margin-top: 14px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  flex-direction: column;
+  text-align: center;
+}
+
+.scratchcard-status strong {
+  color: #18743c;
+  font-size: 1.08rem;
+}
+.scratchcard-status .winner-message {
+  color: #13813e;
+  font-size: clamp(1.45rem, 4vw, 2rem);
+  font-weight: 900;
+  line-height: 1.2;
+  text-shadow: 0 3px 12px rgba(21, 148, 71, .25);
+  transform-origin: center;
+  animation: winner-message-pulse .9s ease-in-out infinite alternate;
+}
+
+.auto-play-status,
+.auto-next-message {
+  color: #5135bd;
+  font-weight: 700;
+}
+
+@keyframes winner-message-pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.14); }
+}
+
+.scratchcard-dialog__actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 12px;
+}
+
+.scratchcard-dialog__actions button {
+  min-width: min(220px, 100%);
+  min-height: 46px;
+}
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.confetti i {
+  position: absolute;
+  top: -12px;
+  left: calc((var(--piece, 1) * 5.2%) + 1%);
+  width: 7px;
+  height: 13px;
+  border-radius: 2px;
+  background: #5d3fd3;
+  animation: scratch-confetti 1.5s ease-out forwards;
+}
+
+.confetti i:nth-child(3n) { background: #159447; }
+.confetti i:nth-child(3n + 1) { background: #f3b61f; }
+.confetti i:nth-child(1) { --piece: 1; animation-delay: .02s; }
+.confetti i:nth-child(2) { --piece: 2; animation-delay: .08s; }
+.confetti i:nth-child(3) { --piece: 3; animation-delay: .14s; }
+.confetti i:nth-child(4) { --piece: 4; animation-delay: .05s; }
+.confetti i:nth-child(5) { --piece: 5; animation-delay: .18s; }
+.confetti i:nth-child(6) { --piece: 6; animation-delay: .11s; }
+.confetti i:nth-child(7) { --piece: 7; animation-delay: .22s; }
+.confetti i:nth-child(8) { --piece: 8; animation-delay: .04s; }
+.confetti i:nth-child(9) { --piece: 9; animation-delay: .16s; }
+.confetti i:nth-child(10) { --piece: 10; animation-delay: .09s; }
+.confetti i:nth-child(11) { --piece: 11; animation-delay: .2s; }
+.confetti i:nth-child(12) { --piece: 12; animation-delay: .12s; }
+.confetti i:nth-child(13) { --piece: 13; animation-delay: .01s; }
+.confetti i:nth-child(14) { --piece: 14; animation-delay: .17s; }
+.confetti i:nth-child(15) { --piece: 15; animation-delay: .07s; }
+.confetti i:nth-child(16) { --piece: 16; animation-delay: .21s; }
+.confetti i:nth-child(17) { --piece: 17; animation-delay: .13s; }
+.confetti i:nth-child(18) { --piece: 18; animation-delay: .03s; }
+
+@keyframes scratch-confetti {
+  0% { opacity: 0; transform: translateY(0) rotate(0); }
+  12% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(460px) rotate(540deg); }
+}
+
+@media (max-width: 520px) {
+  .scratchcard-dialog__header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .scratchcard-dialog__header-actions {
+    width: 100%;
+    gap: 3px;
+  }
+
+  .auto-play-speed {
+    min-width: 0;
+    padding: 2px;
+    gap: 1px;
+  }
+
+  .auto-play-speed__label--full,
+  .auto-play-button__label--full {
+    display: none;
+  }
+
+  .auto-play-speed__label--compact,
+  .auto-play-button__label--compact {
+    display: inline;
+  }
+
+  .auto-play-speed__label {
+    padding: 0 3px;
+    font-size: .64rem;
+  }
+
+  .auto-play-speed__button {
+    min-width: 28px;
+    min-height: 28px;
+    padding: 2px 5px;
+    font-size: .7rem;
+  }
+
+  .auto-play-button {
+    min-width: 0;
+    min-height: 32px;
+    padding: 0 8px;
+    font-size: .7rem;
+  }
+
+  .auto-play-button mat-icon {
+    margin-right: 2px;
+  }
+
+  .scratchcard-dialog {
+    width: 100vw;
+    max-height: 100dvh;
+    padding: 14px;
+  }
+
+  .scratchcard {
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .prize-area {
+    margin-bottom: 12px;
+  }
+
+  .prize-scratch-zone {
+    height: 56px;
+  }
+
+  .scratch-grid {
+    width: min(276px, 100%);
+    gap: 6px;
+  }
+
+  .scratch-cell {
+    border-radius: 11px;
+  }
+
+  .scratchcard-status {
+    min-height: 38px;
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 370px) {
+  .scratchcard-dialog {
+    padding: 10px;
+  }
+
+  .scratch-grid {
+    width: min(252px, 100%);
+  }
+
+  .auto-play-speed__label {
+    display: none;
+  }
+
+  .auto-play-button {
+    padding: 0 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti { display: none; }
+  .scratch-cell { transition: none; }
+  .winner-message { animation: none !important; }
+}

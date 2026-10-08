@@ -1,0 +1,153 @@
+@if (!isUser) {
+  <div class="container-fluid p-24"><mat-card class="cardWithShadow"><mat-card-content><h2>Bienvenido</h2><p>Panel administrativo de {{ appName }}.</p></mat-card-content></mat-card></div>
+} @else {
+  <main class="lottery-page">
+    @if (lottery?.ventaDisponible) {
+      <app-scratchcards-panel
+        (availabilityChanged)="updateScratchcardAvailability($event)"
+        (prizeAwarded)="updateScratchcardPool($event)"
+      />
+    }
+    @if (lottery) {
+      <section class="lottery-hero">
+        @if (!lottery.ventaDisponible) {
+          <app-sorteo-status [lottery]="lottery" [secondsToStart]="lotteryCountdownSeconds" />
+        }
+        @if ((lottery.ventaDisponible && hasAvailableScratchcards === false) || soldOut) {
+          <div class="carousel-info-strip" [class.carousel-info-strip--without-pool]="!lottery.rascaditosHabilitados" [class.carousel-info-strip--sold-out]="soldOut">
+            @if (lottery.rascaditosHabilitados && !soldOut) {
+              <div class="carousel-scratchcard-pool" aria-label="Saldo en rascaditos disponible para ganar">
+                <mat-icon>redeem</mat-icon>
+                <span>
+                  <strong>{{ lottery.bolsaRascaditosDisponible | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
+                  <small>Saldo en rascaditos<br />disponible para ganar</small>
+                </span>
+              </div>
+            }
+            <div
+              class="carousel-sales-status"
+              [class.goal-reached]="lottery.ventaMinimaAlcanzada || soldOut"
+              [attr.aria-label]="soldOut ? '100% de boletos vendidos. ¡Gracias por tu confianza!' + (hasRemainingWalletBalance ? ' Tu saldo ' + remainingWalletBalanceFormatted + ' sigue disponible para próximos sorteos.' : '') : lottery.porcentajeVenta + '% de boletos vendidos; porcentaje mínimo de venta para sorteo ' + lottery.porcentajeMinimoVenta + '%'"
+            >
+              <mat-icon>{{ lottery.ventaMinimaAlcanzada || soldOut ? 'verified' : 'trending_up' }}</mat-icon>
+              <span>
+                <strong>{{ soldOut ? '100' : (lottery.porcentajeVenta | number:'1.0-1') }}% vendido</strong>
+                <small>
+                  @if (soldOut) {
+                    ¡Gracias por tu confianza!
+                    @if (hasRemainingWalletBalance) {
+                      <br />Tu saldo {{ remainingWalletBalanceFormatted }} sigue disponible para próximos sorteos.
+                    }
+                  } @else if (lottery.ventaMinimaAlcanzada) {
+                    Sorteo confirmado
+                  } @else {
+                    Porcentaje mínimo venta<br />para sorteo {{ lottery.porcentajeMinimoVenta }}%
+                  }
+                </small>
+              </span>
+            </div>
+            @if (lottery.ventaDisponible && !soldOut) {
+              <button type="button" class="carousel-ticket-cta" (click)="scrollToTicketGenerator()">
+                <mat-icon>confirmation_number</mat-icon>
+                <span><strong>Comprar boletos</strong><small>Elige tus números</small></span>
+                <mat-icon>arrow_downward</mat-icon>
+              </button>
+            }
+          </div>
+        }
+        <app-lottery-date-strip [lottery]="lottery" />
+        <div class="carousel" aria-label="Imágenes del sorteo">
+          @if (images.length) {
+            @for (image of images; track image; let index = $index) {
+              @if (index === carouselIndex || index === previousCarouselIndex) {
+                <img
+                  class="carousel-slide"
+                  [class.carousel-slide--previous]="index === previousCarouselIndex"
+                  [class.carousel-slide--left-to-right]="index === carouselIndex && carouselDirection === 'left-to-right'"
+                  [class.carousel-slide--right-to-left]="index === carouselIndex && carouselDirection === 'right-to-left'"
+                  [src]="image"
+                  [alt]="lottery.nombre"
+                  (click)="extendCarouselReadingTime()"
+                />
+              }
+            }
+            @if (images.length > 1) {
+              <button type="button" class="carousel-arrow previous" aria-label="Imagen anterior" (click)="previousImage()"><mat-icon>chevron_left</mat-icon></button>
+              <button type="button" class="carousel-arrow next" aria-label="Imagen siguiente" (click)="nextImage()"><mat-icon>chevron_right</mat-icon></button>
+              <div class="carousel-dots">@for (image of images; track image; let index = $index) { <button type="button" [class.active]="index === carouselIndex" [attr.aria-label]="'Mostrar imagen '+(index+1)" (click)="selectImage(index)"></button> }</div>
+            }
+          }
+
+        </div>
+        @if (carouselAction; as action) {
+          <a class="carousel-topic-link" [routerLink]="action.path" [fragment]="action.fragment">
+            {{ action.label }} <mat-icon aria-hidden="true">arrow_outward</mat-icon>
+          </a>
+        }
+      </section>
+
+      @if (lottery.ventaDisponible || soldOut) {
+      <mat-card class="cardWithShadow selection-card">
+        <mat-card-content>
+          @if (soldOut) {
+            <div class="sold-out-notice" role="status">
+              <mat-icon aria-hidden="true">confirmation_number</mat-icon>
+              <h3>Boletos agotados</h3>
+              <p>Se vendió el 100% de los boletos. Ya no puedes generar, consultar ni comprar números en este sorteo.</p>
+            </div>
+          } @else {
+          <div class="selection-heading selection-heading--centered"><div><h3>🍀¡Es tu día de suerte!🍀</h3><p>Genera boletos al azar o consulta un número específico 🎟️</p></div></div>
+          <mat-tab-group [selectedIndex]="selectedTab" (selectedIndexChange)="changeTab($event)">
+            <mat-tab label="🍀 Probar suerte">
+              <form class="selection-form" [class.random-only]="randomForm.controls.tipo.value === 'azar'" [formGroup]="randomForm" (ngSubmit)="generateRandom()">
+                <mat-form-field appearance="outline"><mat-label>Tipo de asignación</mat-label><mat-select formControlName="tipo"><mat-option value="azar">Totalmente al azar</mat-option><mat-option value="inicio">Que inicien con...</mat-option><mat-option value="fin">Que terminen con...</mat-option><mat-option value="incluya">Que incluyan...</mat-option></mat-select></mat-form-field>
+                @if(randomForm.controls.tipo.value !== 'azar'){<mat-form-field appearance="outline"><mat-label>Número para filtrar</mat-label><input matInput formControlName="valor" inputmode="numeric" maxlength="10" /></mat-form-field>}
+                <div class="quantity-field"><app-numeric-input label="¿Cuántos boletos?" [integerDigits]="4" formControlName="cantidad" /><small>Máximo 2,000</small></div>
+                <button id="generate-numbers-button" class="generate-random-button" style="height: 40px;" mat-flat-button color="primary" type="submit" [disabled]="loading"><mat-icon>casino</mat-icon>Generar mis números</button>
+              </form>
+            </mat-tab>
+            <mat-tab label="🎯 Número específico">
+              <form class="manual-form" [formGroup]="manualForm" (ngSubmit)="queryManual()">
+                <mat-form-field appearance="outline"><mat-label>Números o rangos</mat-label><input matInput formControlName="numeros" placeholder="125,185,300-350,400-450" /><mat-hint>Máximo 2,000 números</mat-hint></mat-form-field>
+                <button class="manual-generate-button" style="height: 40px;" mat-flat-button color="primary" type="submit" [disabled]="loading"><mat-icon>casino</mat-icon>Generar mis números</button>
+              </form>
+            </mat-tab>
+          </mat-tab-group>
+
+          @if(tickets.length){
+            <section class="ticket-results">
+              <div class="ticket-toolbar">
+                <div class="legend">
+                  <span class="legend-item"><i class="available"></i><span class="legend-label legend-label--full">Disponibles</span><span class="legend-label legend-label--short">Disp.</span><strong>{{ availableCount }}</strong></span>
+                  <span class="legend-item"><i class="unavailable"></i><span class="legend-label legend-label--full">No disponibles</span><span class="legend-label legend-label--short">No disp.</span><strong>{{ tickets.length-availableCount }}</strong></span>
+                  <span class="legend-item"><i class="selected"></i><span class="legend-label legend-label--full">Seleccionados</span><span class="legend-label legend-label--short">Selec.</span><strong>{{ selectedTickets.length }}</strong></span>
+                </div>
+                @if(selectedTab===1){<div class="ticket-options"><button mat-stroked-button type="button" (click)="onlyAvailable=!onlyAvailable">{{ onlyAvailable?'Ver todos':'Ver solo disponibles' }}</button><label><input type="checkbox" [checked]="selectAllChecked" (change)="selectAll($any($event.target).checked)" /> Quiero todos</label></div>}
+                @if(folioCompra && selectedTab === 0){<div class="reservation-time reservation-time--compact"><span>Tiempo restante</span><strong>{{ countdown }}</strong></div>}
+              </div>
+              <div id="ticket-results-grid" class="ticket-grid">@for(ticket of displayedTickets; track ticket.numero){<button type="button" class="ticket" [class.unavailable]="!ticket.disponible" [class.selected]="ticket.seleccionado" [disabled]="!ticket.disponible || selectedTab===0" (click)="toggle(ticket)">{{ ticket.numero }}</button>}</div>
+              <div class="reservation-actions">
+                <div class="reservation-buttons">
+                  <button mat-stroked-button type="button" [disabled]="loading" (click)="clearSelection()"><mat-icon>delete_sweep</mat-icon>Limpiar selección</button>
+                  @if(folioCompra || selectedTab===1){
+                    <button id="purchase-with-balance-button" class="purchase-button" mat-flat-button type="button" [disabled]="loading" (click)="purchaseSelectedTickets()"><mat-icon class="purchase-pointer" aria-hidden="true">double_arrow</mat-icon><mat-icon class="purchase-ticket-icon">confirmation_number</mat-icon>Comprar Boletos</button>
+                  }
+                </div>
+                <div class="purchase-summary">
+                  <div><span>Boletos seleccionados</span><strong>{{ selectedTickets.length | number }}</strong></div>
+                  <div><span>{{ usesBulkPrice ? 'Precio por boleto' : 'Precio por boleto' }}</span><strong>{{ selectedUnitPrice | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong></div>
+                  <div class="purchase-total"><span>Importe total</span><strong>{{ selectedTotal | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong></div>
+                  @if(displayFolio){<div class="purchase-folio"><span>Folio de compra</span><strong>{{ displayFolio }}</strong></div>}
+                </div>
+              </div>
+            </section>
+          }
+          }
+        </mat-card-content>
+      </mat-card>
+      }
+    } @else if (!loading) {
+      <mat-card class="cardWithShadow empty-state"><mat-card-content><mat-icon>event_busy</mat-icon><h2>No hay sorteos disponibles</h2><p>Vuelve pronto para conocer el siguiente sorteo.</p></mat-card-content></mat-card>
+    }
+  </main>
+}

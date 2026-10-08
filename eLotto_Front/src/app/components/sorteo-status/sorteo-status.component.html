@@ -1,0 +1,34 @@
+<section class="lottery-status" [class.lottery-status--live]="lottery.estado === 'en_proceso' && !rescheduleReason" aria-live="polite">
+  <div class="lottery-status__icon">
+    <mat-icon>{{ rescheduleReason ? 'event_busy' : lottery.estado === 'proximo_a_iniciar' ? 'timer' : 'live_tv' }}</mat-icon>
+  </div>
+  <div class="lottery-status__content">
+    @if (rescheduleReason; as reason) {
+      <app-sorteo-reschedule-message [lottery]="lottery" [reason]="reason" />
+    } @else if (lottery.estado === 'proximo_a_iniciar') {
+      <span class="lottery-status__eyebrow">Ventas y depósitos cerrados</span>
+      <h2>El sorteo está próximo a iniciar</h2>
+      <p>La selección y compra de boletos ya no está disponible.</p>
+      <div class="lottery-status__countdown" aria-label="Tiempo para iniciar el sorteo">
+        <span>Inicia en</span>
+        <strong>{{ countdown }}</strong>
+      </div>
+    } @else {
+      <span class="lottery-status__eyebrow">Transmisión del resultado</span>
+      <h2>El sorteo está en proceso</h2>
+      <p>Puedes seguir la transmisión oficial en vivo desde este espacio.</p>
+      @if (!liveUrl) {
+        <div class="live-placeholder">
+          <mat-icon>schedule</mat-icon>
+          <span>El enlace de la transmisión estará disponible aquí.</span>
+        </div>
+      }
+    }
+    @if (!rescheduleReason && liveUrl) {
+      <a mat-flat-button class="live-link" [href]="liveUrl" target="_blank" rel="noopener noreferrer">
+        <mat-icon>play_circle</mat-icon>Ver transmisión en vivo
+      </a>
+    }
+    <app-sorteo-transparency [lottery]="lottery" [showDownload]="!rescheduleReason" (stateChange)="transparencyState = $event" />
+  </div>
+</section>

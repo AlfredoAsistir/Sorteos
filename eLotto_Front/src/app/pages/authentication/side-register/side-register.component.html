@@ -1,0 +1,198 @@
+<div class="blank-layout-container justify-content-center">
+  <div class="position-relative row w-100 h-100">
+    <div class="col-lg-7 col-xl-8 bg-gredient p-0">
+      <div class="p-24 h-100">
+        <app-branding></app-branding>
+
+        <div
+          class="align-items-center justify-content-center img-height d-none d-lg-flex"
+          >
+          <img
+            src="/assets/images/backgrounds/register-lottery-hero.png"
+            alt="Tombola de sorteo con boletos y numeros de la suerte"
+            style="width: 100%; max-width: 700px; border-radius: 24px"
+            />
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5 col-xl-4 p-0">
+      <div
+        class="p-32 d-flex align-items-start align-items-lg-center justify-content-center h-100"
+        >
+        <div class="row justify-content-center w-100">
+          <div class="col-lg-9 max-width-form">
+            <h4 class="f-w-700 f-s-24 m-0">Bienvenido a {{ appName }}</h4>
+            <span class="d-block f-w-500 d-block m-t-10"
+              >¿Ya tienes un usuario?
+              <a
+                [routerLink]="['/authentication/login']"
+                class="text-decoration-none text-secondary f-w-500 f-s-14"
+                >
+                Inicia Sesión</a
+                >
+              </span>
+
+              <form class="m-t-30" [formGroup]="form" (ngSubmit)="submit()">
+
+                @if (referralCode) {
+                  <mat-form-field appearance="outline" class="w-100" color="primary">
+                    <mat-label>Código de referido</mat-label>
+                    <input
+                      matInput
+                      formControlName="referralCode"
+                      autocomplete="off"
+                      aria-label="Código de referido"
+                    />
+                    <mat-hint>Este código fue incluido en tu invitación.</mat-hint>
+                  </mat-form-field>
+                }
+
+                <!-- Nombre -->
+                <mat-form-field appearance="outline" class="w-100" color="primary">
+                  <mat-label>Nombre</mat-label>
+                  <input matInput formControlName="name" />
+                  @if(f['name'].touched && f['name'].invalid) {
+                    <mat-hint class="m-b-16 error-msg">
+                      <div class="text-error">El nombre es obligatorio.</div>
+                    </mat-hint>
+                  }
+                </mat-form-field>
+
+
+
+                <!-- WhatsApp -->
+                <div class="form-container">
+                  <mat-form-field appearance="outline" style="width: 40%;" color="primary">
+
+                    <mat-label>País</mat-label>
+                    <input matInput type="country" formControlName="country"  [matAutocomplete]="auto" (blur)="validateCountry()"/>
+                    <mat-autocomplete #auto="matAutocomplete">
+                      @for (country of filteredCountries; track country) {
+                        <mat-option [value]="country.name" >
+                          <img [src]="country.flag" class="flag-icon" />
+                          {{ country.name }}
+                        </mat-option>
+                      }
+                    </mat-autocomplete>
+
+                    @if(form.get('country')?.touched && form.get('country')?.invalid) {
+                      <mat-hint class="m-b-16 error-msg">
+                        <div class="text-error">País es obligatorio.</div>
+                      </mat-hint>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" style="width: 60%;" color="primary">
+                    <mat-label>WhatsApp</mat-label>
+                    <input matInput type="whatsapp" formControlName="whatsapp" inputmode="numeric" pattern="[0-9]*" maxlength="15" (keypress)="allowOnlyNumbers($event)"/>
+                    @if(f['whatsapp'].touched && f['whatsapp'].invalid) {
+                      <mat-hint class="m-b-16 error-msg">
+                        <div class="text-error">Número de WhatsApp requerido.</div>
+                      </mat-hint>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <!-- Usuario -->
+                <mat-form-field appearance="outline" class="w-100" color="primary">
+                  <mat-label>Usuario</mat-label>
+                  <input matInput formControlName="user" />
+                  @if(f['user'].touched && f['user'].invalid) {
+                    <mat-hint class="m-b-16 error-msg">
+                      @if (f['user'].hasError('required')) {
+                        <div class="text-error">El usuario es obligatorio.</div>
+                      } @else if (f['user'].hasError('minlength')) {
+                        <div class="text-error">El usuario debe tener al menos 8 caracteres.</div>
+                      }
+                    </mat-hint>
+                  }
+                </mat-form-field>
+
+                <!-- Password -->
+                <mat-form-field appearance="outline" class="w-100" color="primary">
+                  <mat-label>Password</mat-label>
+                  <input matInput [type]="passwordVisible ? 'text' : 'password'" formControlName="password" autocomplete="new-password" />
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    type="button"
+                    tabindex="-1"
+                    [attr.aria-label]="passwordVisible ? 'Ocultar password' : 'Mostrar password'"
+                    [attr.aria-pressed]="passwordVisible"
+                    (click)="passwordVisible = !passwordVisible"
+                  >
+                    <mat-icon>{{ passwordVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  @if(f['password'].touched && f['password'].invalid) {
+                    <mat-hint class="m-b-16 error-msg">
+                      @if (f['password'].hasError('required')) {
+                        <div class="text-error">El password es obligatorio.</div>
+                      } @else if (f['password'].hasError('minlength')) {
+                        <div class="text-error">El password debe tener al menos 8 caracteres.</div>
+                      }
+                    </mat-hint>
+                  }
+                </mat-form-field>
+
+                <!-- Confirmar Password -->
+                <mat-form-field appearance="outline" class="w-100" color="primary">
+                  <mat-label>Confirmar password</mat-label>
+                  <input matInput [type]="confirmPasswordVisible ? 'text' : 'password'" formControlName="confirmPassword" autocomplete="new-password" />
+                  <button
+                    mat-icon-button
+                    matSuffix
+                    type="button"
+                    tabindex="-1"
+                    [attr.aria-label]="confirmPasswordVisible ? 'Ocultar confirmación de password' : 'Mostrar confirmación de password'"
+                    [attr.aria-pressed]="confirmPasswordVisible"
+                    (click)="confirmPasswordVisible = !confirmPasswordVisible"
+                  >
+                    <mat-icon>{{ confirmPasswordVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  @if(f['confirmPassword'].touched && f['confirmPassword'].invalid) {
+                    <mat-hint class="m-b-16 error-msg">
+                      @if(f['confirmPassword'].errors && f['confirmPassword'].errors['required']) {
+                        <div class="text-error">Confirma tu password.</div>
+                      } @else if (f['confirmPassword'].hasError('passwordMismatch')) {
+                        <div class="text-error">Los passwords no coinciden.</div>
+                      }
+                    </mat-hint>
+                  }
+                </mat-form-field>
+
+                <div class="m-b-20">
+                  <mat-checkbox formControlName="confirmedOver18" color="primary">
+                    Confirmo ser mayor de 18 años
+                  </mat-checkbox>
+                  @if (f['confirmedOver18'].touched && f['confirmedOver18'].invalid) {
+                    <div class="text-error f-s-12 m-t-4">
+                      Debes confirmar que eres mayor de 18 años para registrarte.
+                    </div>
+                  }
+                </div>
+
+                <!-- Botón Registrar -->
+                <button type="submit" mat-flat-button color="primary" class="w-100" [disabled]="form.invalid">
+                  Registrarme
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style >
+    .flag-icon {
+    width: 20px;
+    height: 15px;
+    margin-right: 8px;
+  }
+
+  mat-option {
+  display: flex;
+  align-items: center;
+}
+
+</style>

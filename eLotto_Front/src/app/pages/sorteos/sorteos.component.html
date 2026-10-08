@@ -1,0 +1,195 @@
+<div class="sorteos-page">
+  <header><h2>Sorteos</h2><p>Administra la información que verán los participantes.</p></header>
+  <mat-card class="cardWithShadow"><mat-card-content>
+    <div class="toolbar">
+      @if (total) { <nav class="record-navigation" aria-label="Navegación de sorteos">
+        <button type="button" [disabled]="page===1" (click)="go(1)"><mat-icon>first_page</mat-icon></button>
+        <button type="button" [disabled]="page===1" (click)="go(page-1)"><mat-icon>chevron_left</mat-icon></button>
+        <strong>{{ page }} de {{ total }}</strong>
+        <button type="button" [disabled]="page===total" (click)="go(page+1)"><mat-icon>chevron_right</mat-icon></button>
+        <button type="button" [disabled]="page===total" (click)="go(total)"><mat-icon>last_page</mat-icon></button>
+      </nav> }
+      @if (dirty || (!current && total)) { <button mat-stroked-button type="button" (click)="undo()"><mat-icon>undo</mat-icon>Deshacer</button> }
+      @else if (current) { <button mat-stroked-button type="button" (click)="new()"><mat-icon>add</mat-icon>Nuevo</button> }
+    </div>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <mat-tab-group class="sorteos-tabs" [selectedIndex]="selectedTab" (selectedIndexChange)="selectedTab = $event" animationDuration="0ms">
+        <mat-tab>
+          <ng-template mat-tab-label>General @if (showValidationErrors && generalInvalid) { <mat-icon class="tab-error" aria-label="Hay errores">error</mat-icon> }</ng-template>
+          <div class="form-grid tab-content">
+            <div class="field-stack full">
+              <label class="field-label" for="sorteo-nombre">Nombre del sorteo</label>
+              <mat-form-field appearance="outline"><input matInput id="sorteo-nombre" formControlName="nombre" maxlength="150" />@if(form.controls.nombre.invalid&&form.controls.nombre.touched){<mat-error>El nombre es requerido.</mat-error>}</mat-form-field>
+            </div>
+            <app-date-time-field class="full" label="Fecha y hora del sorteo" [labelAbove]="true" [dateControl]="form.controls.fechaDate" [timeControl]="form.controls.fechaTime" />
+            <div class="field-stack full">
+              <label class="field-label" for="sorteo-zona-horaria">Zona horaria del sorteo</label>
+              <mat-form-field appearance="outline">
+                <input matInput id="sorteo-zona-horaria" formControlName="zonaHoraria"
+                  [matAutocomplete]="timeZoneAuto" #timeZoneTrigger="matAutocompleteTrigger"
+                  (keydown.enter)="timeZoneTrigger.panelOpen && $event.stopPropagation()"
+                  autocomplete="off" placeholder="Busca una ciudad o región de México" />
+                <mat-autocomplete #timeZoneAuto="matAutocomplete" [displayWith]="displayTimeZone">
+                  @for (zone of filteredTimeZones; track zone.id) {
+                    <mat-option [value]="zone.id">{{ zone.label }} <span class="time-zone-id">{{ zone.id }}</span></mat-option>
+                  }
+                </mat-autocomplete>
+                @if (form.controls.zonaHoraria.invalid && form.controls.zonaHoraria.touched) {
+                  <mat-error>Selecciona una zona horaria de la lista.</mat-error>
+                }
+              </mat-form-field>
+            </div>
+            <div class="field-stack full">
+              <label class="field-label" for="sorteo-url">URL de transmisión en vivo</label>
+              <mat-form-field appearance="outline">
+                <input matInput id="sorteo-url" type="url" formControlName="urlTransmisionEnVivo" maxlength="2048" placeholder="https://www.facebook.com/..." />
+          <mat-hint>Opcional. Se mostrará durante el sorteo en proceso.</mat-hint>
+          @if (form.controls.urlTransmisionEnVivo.invalid && form.controls.urlTransmisionEnVivo.touched) {
+            <mat-error>Ingresa una URL segura que comience con https://.</mat-error>
+          }
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-tab>
+        <mat-tab>
+          <ng-template mat-tab-label>Boletos y precios @if (showValidationErrors && ticketSettingsInvalid) { <mat-icon class="tab-error" aria-label="Hay errores">error</mat-icon> }</ng-template>
+          <div class="form-grid tab-content">
+        <fieldset class="ticket-settings full">
+          <legend>Precios y boletos</legend>
+          <div class="ticket-settings-grid">
+            <app-numeric-input label="Precio por boleto" [labelAbove]="true" [integerDigits]="10" [decimalDigits]="2" formControlName="precioBoleto" />
+            <app-numeric-input label="Precio por mil boletos" [labelAbove]="true" [integerDigits]="10" [decimalDigits]="2" formControlName="precioPorMil" />
+            <app-numeric-input label="Cantidad de boletos" [labelAbove]="true" [integerDigits]="9" formControlName="cantidadBoletos" />
+            <app-numeric-input label="Venta mínima (%)" [labelAbove]="true" [integerDigits]="2" formControlName="porcentajeMinimoVenta" />
+          </div>
+        </fieldset>
+          </div>
+        </mat-tab>
+        <mat-tab>
+          <ng-template mat-tab-label>Rascaditos @if (showValidationErrors && scratchcardsInvalid) { <mat-icon class="tab-error" aria-label="Hay errores">error</mat-icon> }</ng-template>
+          <div class="form-grid tab-content">
+        <fieldset class="scratchcards full">
+          <legend>Rascaditos</legend>
+          <mat-slide-toggle formControlName="rascaditosHabilitados" (change)="onScratchcardToggle($event.checked)">
+            Habilitar Rascaditos
+          </mat-slide-toggle>
+
+          @if (form.controls.rascaditosHabilitados.value) {
+            <div class="scratchcard-content">
+              <div class="scratchcard-ratio" aria-label="Configuración de ganadores de rascaditos">
+                <span>Configuración:</span>
+                <app-numeric-input label="Ganadores" [labelAbove]="true" [integerDigits]="9" formControlName="ganadoresPorGrupo" />
+                <span>cada</span>
+                <app-numeric-input label="Rascaditos" [labelAbove]="true" [integerDigits]="9" formControlName="rascaditosPorGrupo" />
+                <span> 1 rascadito por cada</span>
+                <app-numeric-input class="stripe-deposit-amount" label="Depósito Stripe (MXN)" [labelAbove]="true" [integerDigits]="10" [decimalDigits]="2" formControlName="importeDepositoStripePorRascadito" />
+              </div>
+              @if (form.hasError('scratchcardRatio')) {
+                <p class="validation-message">Ganadores no puede ser mayor que Rascaditos.</p>
+              }
+
+              <div class="prizes-heading">
+                <div>
+                  <h3>Premios</h3>
+                  <p>Configura el importe individual y la cantidad máxima disponible.</p>
+                </div>
+                <button mat-stroked-button type="button" [disabled]="saving" (click)="addPrize()">
+                  <mat-icon>add</mat-icon>Agregar premio
+                </button>
+              </div>
+
+              <div class="prizes-table-wrapper">
+                <table class="prizes-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Premio</th>
+                      <th scope="col">Cantidad</th>
+                      <th scope="col">Total</th>
+                      <th scope="col">Entregados</th>
+                      <th scope="col">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody formArrayName="rascaditoPremios">
+                    @for (premioForm of rascaditoPremios.controls; track premioForm; let index = $index) {
+                      <tr [formGroupName]="index">
+                        <td data-label="Premio">
+                          <app-numeric-input label="Premio" [labelAbove]="true" [integerDigits]="16" [decimalDigits]="2" formControlName="premio" />
+                        </td>
+                        <td data-label="Cantidad">
+                          <app-numeric-input label="Cantidad" [labelAbove]="true" [integerDigits]="9" formControlName="cantidad" />
+                          @if (premioForm.hasError('deliveredExceedsQuantity')) {
+                            <span class="validation-message">No puede ser menor que Entregados.</span>
+                          }
+                        </td>
+                        <td data-label="Total" class="money">{{ totalPremio(premioForm.getRawValue()) | currency:'MXN':'symbol-narrow':'1.2-2' }}</td>
+                        <td data-label="Entregados">{{ premioForm.controls.entregados.value }}</td>
+                        <td data-label="Acciones">
+                          <button mat-icon-button type="button" color="warn" aria-label="Eliminar fila de premio" [disabled]="saving || premioForm.controls.entregados.value > 0" (click)="removePrize(premioForm)">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr><td colspan="5" class="empty-prizes">Agrega al menos un premio.</td></tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="scratchcard-totals">
+                <span>Total premios: <strong>{{ totalPremiosConfigurados }}</strong></span>
+                <span>Gran total: <strong>{{ bolsaTotal | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong></span>
+              </div>
+            </div>
+          }
+        </fieldset>
+          </div>
+        </mat-tab>
+        <mat-tab>
+          <ng-template mat-tab-label>Imágenes @if (showValidationErrors && ((!current && !files[0]) || imageThemeInvalid(1) || imageThemeInvalid(2))) { <mat-icon class="tab-error" aria-label="Hay errores en las imágenes">error</mat-icon> }</ng-template>
+          <div class="form-grid tab-content">
+        <section class="images full"><h3>Imágenes del sorteo</h3><p>JPG, PNG o WEBP. Máximo 5 MB por imagen.</p><div class="image-grid">
+          @for (preview of previews; track $index) {
+            <div class="image-picker">
+              <span>{{ $index===0 ? 'Imagen principal *' : 'Imagen opcional '+($index+1) }}</span>
+              <div class="preview">
+                @if(preview){
+                  <img [src]="preview" alt="Vista previa" />
+                  @if($index > 0){
+                    <button class="remove-image" mat-mini-fab type="button" [attr.aria-label]="'Eliminar imagen opcional '+($index+1)" [disabled]="saving" (click)="removeImage($index)">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  }
+                }@else{<mat-icon>add_photo_alternate</mat-icon>}
+              </div>
+              <input type="file" accept="image/jpeg,image/png,image/webp" [attr.aria-label]="'Seleccionar '+($index===0 ? 'imagen principal' : 'imagen opcional '+($index+1))" (change)="selectImage($index,$event)" />
+              @if ($index > 0) {
+                <div class="field-stack">
+                  <label class="field-label" [for]="'sorteo-imagen-tema-' + ($index + 1)">Tema de la imagen {{ $index + 1 }}</label>
+                  <mat-form-field appearance="outline">
+                    <input matInput [id]="'sorteo-imagen-tema-' + ($index + 1)"
+                      [formControl]="imageThemeControl($index)" [matAutocomplete]="imageThemeAuto"
+                      #imageThemeTrigger="matAutocompleteTrigger"
+                      (keydown.enter)="imageThemeTrigger.panelOpen && $event.stopPropagation()"
+                      autocomplete="off" placeholder="Selecciona un tema" />
+                    <mat-autocomplete #imageThemeAuto="matAutocomplete" [displayWith]="displayImageTheme">
+                      @for (option of filteredImageThemes($index); track option.value) {
+                        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                      }
+                    </mat-autocomplete>
+                  </mat-form-field>
+                  @if (showValidationErrors && imageThemeInvalid($index)) {
+                    <span class="image-theme-error">{{ previews[$index] ? 'Selecciona Rascaditos o Referidos.' : 'Agrega una imagen para asignarle un tema.' }}</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div></section>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+      <div class="actions">@if(current){<button mat-stroked-button color="warn" type="button" [disabled]="saving" (click)="delete()"><mat-icon>delete</mat-icon>Eliminar</button>}<button mat-flat-button color="primary" type="submit" [disabled]="!dirty||saving"><mat-icon>save</mat-icon>{{ saving?'Guardando...':current?'Actualizar':'Guardar' }}</button></div>
+    </form>
+  </mat-card-content></mat-card>
+</div>

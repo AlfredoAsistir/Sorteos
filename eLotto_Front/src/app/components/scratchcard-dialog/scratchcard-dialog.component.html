@@ -1,0 +1,140 @@
+<section class="scratchcard-dialog" aria-labelledby="scratchcard-title">
+  <header class="scratchcard-dialog__header">
+    <div>
+      <div class="scratchcard-dialog__eyebrow">{{ data.historyMode ? 'Rascadito ganador' : 'Rascadito' }}</div>
+    </div>
+    <div class="scratchcard-dialog__header-actions">
+      @if (!data.historyMode) {
+      @if (autoPlayActive) {
+        <div class="auto-play-speed" role="group" aria-label="Velocidad del juego automático">
+          <span class="auto-play-speed__label auto-play-speed__label--full">Velocidad</span>
+          <span class="auto-play-speed__label auto-play-speed__label--compact" aria-hidden="true">Vel.</span>
+          @for (speed of autoPlaySpeeds; track speed) {
+            <button
+              type="button"
+              class="auto-play-speed__button"
+              [class.auto-play-speed__button--active]="autoPlaySpeed === speed"
+              [attr.aria-pressed]="autoPlaySpeed === speed"
+              [attr.aria-label]="'Velocidad automática ' + speed"
+              (click)="setAutoPlaySpeed(speed)"
+            >{{ speed === 0.5 ? '.5' : speed }}</button>
+          }
+        </div>
+      }
+      <button
+        mat-stroked-button
+        class="auto-play-button"
+        [class.auto-play-button--active]="autoPlayActive"
+        type="button"
+        [disabled]="revealInProgress || (visualComplete && !data.hasNext)"
+        (click)="toggleAutoPlay()"
+      >
+        <mat-icon>{{ autoPlayActive ? 'pause_circle' : 'play_circle' }}</mat-icon>
+        <span class="auto-play-button__label auto-play-button__label--full">
+          {{ autoPlayActive ? 'Pausar automático' : 'Juego automático' }}
+        </span>
+        <span class="auto-play-button__label auto-play-button__label--compact" aria-hidden="true">
+          {{ autoPlayActive ? 'Pausar auto' : 'Automático' }}
+        </span>
+      </button>
+      }
+      <button mat-icon-button type="button" aria-label="Cerrar rascadito" [disabled]="revealInProgress" (click)="close()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  <div class="scratchcard-dialog__eyebrow" style="text-align: center;">{{ data.historyMode ? 'Así quedó tu rascadito ganador y la línea con la que obtuviste el premio.' : '' }}</div>
+
+  <div class="scratchcard" [class.scratchcard--winner]="visualComplete && response?.esGanador">
+    @if (celebrationActive) {
+      <div class="confetti" aria-hidden="true">
+        @for (piece of confettiPieces; track piece) { <i></i> }
+      </div>
+    }
+
+    <section class="prize-area" aria-label="Premio posible">
+      <span>Premio posible</span>
+      <div class="prize-scratch-zone">
+        <app-scratch-layer
+          ariaLabel="Raspa para descubrir el premio posible"
+          [disabled]="revealInProgress"
+          [forceReveal]="forceReveal || autoPrizeRevealed"
+          (scratchStarted)="onScratchStarted()"
+          (thresholdReached)="onZoneRevealed('prize')"
+        >
+          @if (possiblePrize(); as amount) {
+            <strong>{{ amount | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
+          } @else {
+            <mat-icon aria-hidden="true">help_outline</mat-icon>
+          }
+        </app-scratch-layer>
+      </div>
+    </section>
+
+    <div class="scratch-grid" aria-label="Tablero de rascadito de tres por tres">
+      @for (index of cellIndexes; track index) {
+        <div class="scratch-cell" [class.scratch-cell--winner]="isWinningCell(index)">
+          <app-scratch-layer
+            [ariaLabel]="'Raspa la casilla ' + (index + 1)"
+            [disabled]="revealInProgress"
+            [forceReveal]="shouldForceRevealCell(index)"
+            [hideContentUntilRevealed]="true"
+            (scratchStarted)="onScratchStarted()"
+            (thresholdReached)="onZoneRevealed('cell-' + index)"
+          >
+            @if (symbolAt(index); as symbol) {
+              <mat-icon [attr.aria-label]="symbol">{{ symbolIcons[symbol] }}</mat-icon>
+            } @else {
+              <mat-icon class="unknown-symbol" aria-hidden="true">help_outline</mat-icon>
+            }
+          </app-scratch-layer>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="scratchcard-status" aria-live="polite">
+    @if (revealInProgress) {
+      <mat-spinner diameter="22" />
+      <span>Validando tu rascadito de forma segura…</span>
+    } @else if (visualComplete && response) {
+      @if (response.esGanador) {
+        <strong class="winner-message">¡Felicidades! Ganaste {{ response.importePremio | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
+        @if (!response.reveladoAhora) {
+          <small>{{ data.historyMode ? 'Este premio se encuentra acreditado en tu saldo.' : 'Este premio ya había sido acreditado anteriormente.' }}</small>
+        }
+      } @else {
+        <small>Gracias por participar.</small>
+      }
+      @if (nextCountdown !== null) {
+        <small class="auto-next-message">El siguiente rascadito se abrirá en {{ nextCountdown }} segundos.</small>
+      }
+    } @else if (state === 'error') {
+      <strong>No se perdió tu resultado.</strong>
+      <small>Puedes reintentar de forma segura.</small>
+    } @else {
+      @if (autoPlayActive) {
+        <span class="auto-play-status">Juego automático: descubriendo casillas…</span>
+      }
+    }
+  </div>
+
+  <footer class="scratchcard-dialog__actions">
+    @if (state === 'error' && !visualComplete) {
+      <button mat-flat-button color="primary" type="button" [disabled]="revealInProgress" (click)="retryResult()">
+        <mat-icon>refresh</mat-icon>
+        Reintentar
+      </button>
+    } @else if (visualComplete) {
+      @if (data.hasNext) {
+        <button mat-flat-button color="primary" type="button" (click)="next()">
+          <mat-icon>arrow_forward</mat-icon>
+          Siguiente rascadito
+          @if (nextCountdown !== null) { <span>({{ nextCountdown }} s)</span> }
+        </button>
+      }
+      <button mat-stroked-button type="button" (click)="close()">Cerrar</button>
+    }
+  </footer>
+</section>

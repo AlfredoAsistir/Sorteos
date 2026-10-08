@@ -1,0 +1,26 @@
+# Only the two application projects and shared instructions belong to this repository.
+/*
+!/.gitignore
+!/AGENTS.md
+!/eLotto_Bak/
+!/eLotto_Front/
+
+# Backend build and local tooling
+**/bin/
+**/obj/
+**/.vs/
+**/tmp/
+**/TestResults/
+**/*.user
+**/*.suo
+
+# Backend configuration containing local or server credentials
+/eLotto_Bak/eLotto/appsettings.Local.json
+/eLotto_Bak/eLotto/ConfiguracionServidor/appsettings.Production.json
+
+# Local environment and credential files
+**/.env
+**/.env.*
+**/*.pfx
+**/*.pem
+**/*.key

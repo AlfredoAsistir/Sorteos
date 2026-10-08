@@ -1,0 +1,9 @@
+.date-time-field { margin: 0; padding: 14px 14px 0; border: 1px solid rgba(127,127,127,.28); border-radius: 8px; }
+legend { padding: 0 6px; font-weight: 600; }
+.date-time-grid { display: grid; grid-template-columns: 1fr; gap: 0 12px; }
+.date-time-control { min-width: 0; }
+.date-time-control mat-form-field { display: block; width: 100%; }
+.date-time-label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 700; line-height: 20px; }
+.date-time-field--labels-above { padding-bottom: 4px; }
+.hour-grid { display: grid; grid-template-columns: repeat(4, 64px); padding: 8px; }
+@media (min-width: 520px) { .date-time-grid { grid-template-columns: minmax(0,1.4fr) minmax(130px,.6fr); } }

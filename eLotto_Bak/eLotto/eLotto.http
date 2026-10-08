@@ -1,0 +1,6 @@
+@eLotto_HostAddress = http://localhost:5031
+
+GET {{eLotto_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,281 @@
+<main class="faq-page">
+  <section class="faq-hero" aria-labelledby="faq-title">
+    <div class="faq-hero__copy">
+      <span class="faq-eyebrow">Centro de ayuda</span>
+      <h1 id="faq-title">Preguntas frecuentes</h1>
+      <p>Encuentra respuestas sobre tu saldo, depósitos, Rascaditos, boletos, transparencia y todos los beneficios del programa de referidos.</p>
+
+      <mat-form-field appearance="outline" class="faq-search">
+        <mat-label>Buscar una pregunta</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [(ngModel)]="searchTerm" autocomplete="off" placeholder="Ejemplo: premio de mi referido" />
+        @if (searchTerm) {
+          <button mat-icon-button matSuffix type="button" aria-label="Limpiar búsqueda" (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+    </div>
+
+    <aside class="referral-highlight" aria-label="Beneficio principal del programa de referidos">
+      <span class="referral-highlight__icon"><mat-icon>emoji_events</mat-icon></span>
+      <div>
+        <span class="faq-eyebrow">Tu invitación sigue premiándote</span>
+        <h2>Si tu referido gana, tú también ganas</h2>
+        <p>Cuando tu referido obtiene el premio principal y se cumplen las condiciones del sorteo, recibes dinero en efectivo (Transferencia SPEI).</p>
+      </div>
+      <div class="referral-benefits">
+        <span><mat-icon>all_inclusive</mat-icon><strong>Puedes ganar cada vez que tu referido gane</strong></span>
+        <span><mat-icon>payments</mat-icon><strong>Premio en efectivo (Transferencia SPEI)</strong></span>
+        <span><mat-icon>tune</mat-icon><strong>Importe según el sorteo</strong></span>
+      </div>
+      <a mat-flat-button color="primary" routerLink="/starter/invitar-amigo">
+        <mat-icon>person_add</mat-icon>
+        Invitar a un amigo
+      </a>
+    </aside>
+  </section>
+
+  @if (!searchTerm) {
+    <nav class="faq-categories" aria-label="Categorías de preguntas frecuentes">
+      @for (group of groups; track group.id) {
+        <a [routerLink]="[]" [fragment]="group.id" (click)="scrollToGroup(group.id)">
+          <mat-icon>{{ group.icon }}</mat-icon>
+          <span>{{ group.title }}</span>
+        </a>
+      }
+    </nav>
+  }
+
+  <div class="faq-content">
+    @for (group of filteredGroups; track group.id) {
+      <section class="faq-group" [id]="group.id" [attr.aria-labelledby]="group.id + '-title'">
+        <header class="faq-group__heading">
+          <span><mat-icon>{{ group.icon }}</mat-icon></span>
+          <div>
+            <h2 [id]="group.id + '-title'">{{ group.title }}</h2>
+            <p>{{ group.description }}</p>
+          </div>
+        </header>
+
+        @if (group.id === 'referidos') {
+          <aside class="current-benefits" aria-labelledby="current-benefits-title">
+            <header class="current-benefits__heading">
+              <span class="current-benefits__icon"><mat-icon>workspace_premium</mat-icon></span>
+              <div>
+                <span>Beneficios actualizados</span>
+                <h3 id="current-benefits-title">Programa vigente de referidos</h3>
+              </div>
+              @if (benefits?.isActive) {
+                <span class="current-benefits__status current-benefits__status--active">
+                  <i aria-hidden="true"></i> Activo
+                </span>
+              } @else if (benefits && !benefits.isActive) {
+                <span class="current-benefits__status">Pausado</span>
+              }
+            </header>
+
+            @if (benefitsLoading) {
+              <div class="current-benefits__loading" role="status">
+                <mat-spinner diameter="28"></mat-spinner>
+                <span>Consultando los beneficios vigentes…</span>
+              </div>
+            } @else if (benefits?.isActive) {
+              <div class="current-benefits__grid">
+                <article>
+                  <span class="benefit-symbol"><mat-icon>account_balance_wallet</mat-icon></span>
+                  <div>
+                    <span class="benefit-label">Un depósito beneficia a los dos</span>
+                    <strong>{{ benefits!.depositRewardPercentage | number:'1.0-2' }}% de bono para ti y {{ benefits!.depositRewardPercentage | number:'1.0-2' }}% para tu invitado</strong>
+                    <p>
+                      Cuando tu invitado realiza un depósito confirmado, ambos reciben saldo adicional.
+                      @if (benefits!.maxRewardedDeposits > 0) {
+                        Aplica hasta en sus primeros {{ benefits!.maxRewardedDeposits | number }} depósitos bonificados.
+                      }
+                    </p>
+                  </div>
+                </article>
+
+                <article>
+                  <span class="benefit-symbol benefit-symbol--cash"><mat-icon>payments</mat-icon></span>
+                  <div>
+                    <span class="benefit-label">Si tu referido gana, tú también ganas</span>
+                    <strong>{{ benefits!.winnerCashRewardAmount | currency:'MXN':'symbol-narrow':'1.2-2' }} MXN en efectivo (Transferencia SPEI)</strong>
+                    <p>Recibes este premio mediante transferencia bancaria SPEI a una cuenta a tu nombre cuando tu referido obtiene el premio principal del sorteo.</p>
+                  </div>
+                </article>
+              </div>
+
+              <div class="current-benefits__condition">
+                <mat-icon>verified</mat-icon>
+                @if (benefits!.minimumConfirmedTickets > 0) {
+                  <p>
+                    <strong>Condición para recibir el premio en efectivo (Transferencia SPEI):</strong>
+                    participa con al menos {{ benefits!.minimumConfirmedTickets | number }}
+                    boletos confirmados en el mismo sorteo que gane tu referido.
+                  </p>
+                } @else {
+                  <p>
+                    <strong>Sin requisito mínimo de boletos:</strong>
+                    actualmente no necesitas una cantidad mínima de boletos para recibir el premio en efectivo (Transferencia SPEI).
+                  </p>
+                }
+              </div>
+            } @else if (benefits && !benefits.isActive) {
+              <div class="current-benefits__message">
+                <mat-icon>pause_circle</mat-icon>
+                <p>El programa está temporalmente pausado. Tus referidos permanecen vinculados y aquí mostraremos los beneficios cuando vuelva a activarse.</p>
+              </div>
+            } @else if (benefitsUnavailable) {
+              <div class="current-benefits__message">
+                <mat-icon>info</mat-icon>
+                <p>No fue posible consultar los beneficios vigentes en este momento. Inténtalo nuevamente más tarde.</p>
+              </div>
+            }
+          </aside>
+        }
+
+        @if (group.id === 'sorteos') {
+          <aside class="lottery-rules" aria-labelledby="lottery-rules-title">
+            <header class="lottery-rules__heading">
+              <span class="lottery-rules__icon"><mat-icon>emoji_events</mat-icon></span>
+              <div>
+                <span>Información actualizada</span>
+                <h3 id="lottery-rules-title">Reglas del sorteo vigente</h3>
+              </div>
+            </header>
+
+            @if (lotteryLoading) {
+              <div class="lottery-rules__message lottery-rules__message--loading" role="status">
+                <mat-spinner diameter="28"></mat-spinner>
+                <span>Consultando la información del sorteo vigente…</span>
+              </div>
+            } @else if (currentLottery) {
+              <div class="lottery-rules__summary">
+                <article>
+                  <mat-icon>confirmation_number</mat-icon>
+                  <div>
+                    <span>Sorteo vigente</span>
+                    <strong>{{ currentLottery.nombre }}</strong>
+                  </div>
+                </article>
+                <article>
+                  <mat-icon>event</mat-icon>
+                  <div>
+                    <span>Fecha y hora programadas</span>
+                    <strong>{{ currentLotteryDateTime }} ({{ currentLottery.zonaHoraria }})</strong>
+                  </div>
+                </article>
+              </div>
+
+              <div class="lottery-rules__details">
+                <article>
+                  <span class="lottery-rule-number">1</span>
+                  <div>
+                    <strong>Venta mínima requerida</strong>
+                    <p>
+                      Este sorteo está programado para realizarse con la Lotería Nacional el
+                      {{ currentLotteryDateTime }} ({{ currentLottery.zonaHoraria }}), siempre que se venda al menos el
+                      <strong>{{ currentLottery.porcentajeMinimoVenta | number:'1.0-2' }}% de los boletos</strong>.
+                      Si no se alcanza ese mínimo, se reprogramará para una nueva fecha.
+                    </p>
+                  </div>
+                </article>
+
+                <article>
+                  <span class="lottery-rule-number">2</span>
+                  <div>
+                    <strong>Cómo se determina al ganador</strong>
+                    <p>El número ganador será el del primer lugar del sorteo de la Lotería Nacional en la fecha en que finalmente se realice.</p>
+                  </div>
+                </article>
+
+                <article>
+                  <span class="lottery-rule-number">3</span>
+                  <div>
+                    <strong>Entrega del premio</strong>
+                    <p>El premio se entregará mediante transferencia bancaria SPEI en un plazo máximo de 48 horas después de que la persona ganadora proporcione una cuenta bancaria a su nombre.</p>
+                  </div>
+                </article>
+              </div>
+            } @else if (lotteryUnavailable) {
+              <div class="lottery-rules__message">
+                <mat-icon>info</mat-icon>
+                <p>No fue posible consultar el sorteo vigente en este momento. Inténtalo nuevamente más tarde.</p>
+              </div>
+            }
+          </aside>
+        }
+
+        @if (group.id === 'transparencia') {
+          <article class="transparency-explainer">
+            <p class="transparency-explainer__lead">
+              Cuando un sorteo se realiza sin haberse vendido el 100% de los boletos,
+              <strong>75 minutos antes del sorteo publicamos un documento con todos los números que quedaron sin vender.</strong>
+            </p>
+
+            <h3>¿Para qué hacemos esto?</h3>
+            <p>
+              Para que exista una prueba pública, creada
+              <strong>con suficiente anticipación antes de realizarse el sorteo y, por supuesto, antes de conocer el número ganador</strong>,
+              de cuáles boletos <strong>NO SE VENDIERON</strong>.
+            </p>
+            <p>De esta manera, una vez publicada la lista:</p>
+            <p class="transparency-explainer__rule">
+              <strong>Ningún boleto que aparezca como NO VENDIDO puede ser asignado posteriormente como VENDIDO y asignar a un ganador.</strong>
+            </p>
+            <p>
+              Si el número ganador se encuentra entre los boletos no vendidos,
+              <strong>no habrá ganador y el sorteo deberá reprogramarse de acuerdo con sus reglas.</strong>
+            </p>
+            <p>
+              El documento permanecerá disponible para que cualquier persona pueda consultarlo y comprobar que la lista de boletos no vendidos
+              <strong>fue publicada con suficiente anticipación antes de realizarse el sorteo</strong>,
+              cuando todavía era imposible conocer cuál sería el número ganador.
+            </p>
+            <p>Si todos los boletos fueron vendidos, no será necesario publicar este documento.</p>
+            <p>Si el sorteo no alcanza el porcentaje mínimo requerido para realizarse, será reprogramado y tampoco se generará la lista.</p>
+
+            <div class="transparency-explainer__motto">
+              <h3>Primero se publica. Después se sortea.</h3>
+              <p>Así evitamos que un boleto sin comprador pueda ser asignado después de conocer el número ganador.</p>
+            </div>
+
+            <p class="transparency-explainer__closing">
+              <strong>Nuestra prioridad es la <span>TRANSPARENCIA</span> antes, durante y después de cada sorteo. Porque tu confianza se construye con hechos que puedes comprobar.</strong>
+            </p>
+          </article>
+        }
+
+        @if (group.questions.length) {
+          <mat-accordion multi>
+            @for (item of group.questions; track item.question) {
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>{{ item.question }}</mat-panel-title>
+                </mat-expansion-panel-header>
+                <p>{{ item.answer }}</p>
+              </mat-expansion-panel>
+            }
+          </mat-accordion>
+        }
+      </section>
+    } @empty {
+      <section class="faq-empty" aria-live="polite">
+        <mat-icon>search_off</mat-icon>
+        <h2>No encontramos esa pregunta</h2>
+        <p>Prueba con palabras como saldo, depósito, Rascadito, boletos o referidos.</p>
+        <button mat-stroked-button type="button" (click)="clearSearch()">Ver todas las preguntas</button>
+      </section>
+    }
+  </div>
+
+  <section class="faq-support">
+    <mat-icon>support_agent</mat-icon>
+    <div>
+      <h2>¿Todavía tienes dudas?</h2>
+      <p>Comunícate con nosotros y te ayudaremos a resolverlas.</p>
+    </div>
+    <a mat-stroked-button routerLink="/starter/contacto">Contactar soporte</a>
+  </section>
+</main>

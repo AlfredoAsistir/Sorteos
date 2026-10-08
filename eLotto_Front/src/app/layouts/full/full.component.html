@@ -1,0 +1,131 @@
+<mat-sidenav-container
+  class="mainWrapper"
+  autosize
+  autoFocus
+  [ngClass]="{
+    'sidebarNav-mini':
+      options.sidenavCollapsed && options.navPos !== 'top' && !resView,
+    'sidebarNav-horizontal': options.horizontal,
+    cardBorder: options.cardBorder
+  }"
+  [dir]="options.dir!"
+>
+  <!-- ============================================================== -->
+  <!-- Vertical Sidebar -->
+  <!-- ============================================================== -->
+  @if (!isUser && !options.horizontal) {
+  <mat-sidenav
+    #leftsidenav
+    [mode]="isOver ? 'over' : 'side'"
+    [opened]="
+      options.navPos === 'side' && options.sidenavOpened && !isOver && !resView
+    "
+    (openedChange)="onSidenavOpenedChange($event)"
+    (closedStart)="onSidenavClosedStart()"
+    class="sidebarNav"
+  >
+    <div class="flex-layout">
+      <app-sidebar
+        (toggleMobileNav)="sidenav.toggle()"
+        [showToggle]="isOver" 
+      ></app-sidebar>
+      <ng-scrollbar class="position-relative" style="height: 100%">
+        <mat-nav-list class="sidebar-list">
+          @for(item of navItems; track item) {
+          <app-nav-item [item]="item" (notify)="sidenav.toggle()">
+          </app-nav-item>
+          }
+        </mat-nav-list>
+      </ng-scrollbar>
+    </div>
+  </mat-sidenav>
+  }
+
+  <!-- ============================================================== -->
+  <!-- horizontal Sidebar -->
+  <!-- ============================================================== -->
+  @if (!isUser && resView) {
+  <mat-sidenav
+    #leftsidenav
+    [mode]="'over'"
+    [opened]="options.sidenavOpened && !isTablet"
+    (openedChange)="onSidenavOpenedChange($event)"
+    (closedStart)="onSidenavClosedStart()"
+    class="sidebarNav"
+  >
+    <app-sidebar> </app-sidebar>
+    <ng-scrollbar class="position-relative" style="height: 100%">
+      <mat-nav-list class="sidebar-list">
+        @for(item of navItems; track item) {
+        <app-nav-item [item]="item" (notify)="sidenav.toggle()"> </app-nav-item>
+        }
+      </mat-nav-list>
+    </ng-scrollbar>
+  </mat-sidenav>
+  }
+
+  <!-- ============================================================== -->
+  <!-- Main Content -->
+  <!-- ============================================================== -->
+  <mat-sidenav-content class="contentWrapper" #content>
+    <!-- ============================================================== -->
+    <!-- VerticalHeader -->
+    <!-- ============================================================== -->
+    @if (isUser) {
+      <div class="user-sticky-header">
+        <app-horizontal-header
+          [showMenuButton]="false"
+          (optionsChange)="receiveOptions($event)"
+        ></app-horizontal-header>
+        <app-user-top-navigation></app-user-top-navigation>
+      </div>
+    } @else if (!options.horizontal) {
+      <app-header
+        [showToggle]="!isOver"
+        (toggleCollapsed)="toggleCollapsed()"
+        (toggleMobileNav)="sidenav.toggle()"
+        (optionsChange)="receiveOptions($event)"
+      ></app-header>
+    } @else {
+      <app-horizontal-header
+        (toggleMobileNav)="sidenav.toggle()"
+        (optionsChange)="receiveOptions($event)"
+      ></app-horizontal-header>
+      <app-horizontal-sidebar></app-horizontal-sidebar>
+    }
+
+    <main
+      class="pageWrapper"
+      [ngClass]="{
+        maxWidth: options.boxed
+      }"
+    >
+      <!-- ============================================================== -->
+      <!-- Outlet -->
+      <!-- ============================================================== -->
+      <router-outlet></router-outlet>
+      @if (!isUser) {
+        <div class="customizerBtn">
+          <button mat-fab class="bg-primary text-white" (click)="customizerRight.toggle()">
+            <mat-icon>settings</mat-icon>
+          </button>
+        </div>
+      }
+    </main>
+    <app-footer></app-footer>
+  </mat-sidenav-content>
+
+  <mat-sidenav #customizerRight mode="over" position="end">
+    <div
+      class="p-x-16 p-y-20 d-flex align-items-center justify-content-between"
+    >
+      <h3 class="f-s-21 f-w-600">Settings</h3>
+      <button class="d-lg-none" mat-button (click)="customizerRight.toggle()">
+        Close
+      </button>
+    </div>
+    <mat-divider></mat-divider>
+
+    <app-customizer (optionsChange)="receiveOptions($event)"></app-customizer>
+  </mat-sidenav>
+</mat-sidenav-container>

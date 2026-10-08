@@ -1,0 +1,263 @@
+<main class="prize-delivery-page">
+  @if (showCelebration) {
+    <div class="celebration-overlay" role="status" aria-live="polite">
+      <div class="celebration-stage" aria-hidden="true">
+        @for (piece of confettiPieces; track $index) {
+          <span
+            class="confetti-piece"
+            [style.left.%]="piece.left"
+            [style.background]="piece.color"
+            [style.animation-delay.ms]="piece.delay"
+            [style.animation-duration.ms]="piece.duration"
+            [style.--drift]="piece.drift + 'px'"
+            [style.--rotation]="piece.rotation + 'deg'"
+          ></span>
+        }
+        <span class="confetti-cannon confetti-cannon--left"></span>
+        <span class="confetti-cannon confetti-cannon--right"></span>
+        @for (piece of cannonConfetti; track $index) {
+          <span
+            class="cannon-confetti-piece"
+            [style.left.%]="piece.origin"
+            [style.background]="piece.color"
+            [style.animation-delay.ms]="piece.delay"
+            [style.--travel-x]="piece.travelX + 'px'"
+            [style.--travel-end-x]="piece.travelEndX + 'px'"
+            [style.--lift]="piece.lift + 'px'"
+            [style.--final-lift]="piece.finalLift + 'px'"
+            [style.--rotation]="piece.rotation + 'deg'"
+            [style.--final-rotation]="piece.finalRotation + 'deg'"
+          ></span>
+        }
+        @for (firework of [0, 1, 2]; track firework) {
+          <div class="firework" [class]="'firework firework--' + firework">
+            @for (spark of fireworkSparks; track spark) {
+              <span [style.--angle]="spark * 30 + 'deg'"></span>
+            }
+          </div>
+        }
+      </div>
+      <div class="celebration-message">
+        <mat-icon>emoji_events</mat-icon>
+        <strong>¡Tenemos ganador!</strong>
+      </div>
+    </div>
+  }
+
+  <header class="page-heading">
+    <div>
+      <h1>Entrega del premio</h1>
+    </div>
+    <div class="official-source">
+      <mat-icon>verified</mat-icon>
+      <span><small>Fuente oficial</small><strong>Lotería Nacional</strong></span>
+    </div>
+  </header>
+
+  @if (loading) {
+    <mat-card class="cardWithShadow loading-state">
+      <mat-card-content>
+        <mat-spinner diameter="42"></mat-spinner>
+        <span>Cargando información del sorteo...</span>
+      </mat-card-content>
+    </mat-card>
+  } @else if (!sorteo) {
+    <mat-card class="cardWithShadow empty-state">
+      <mat-card-content>
+        <mat-icon>event_busy</mat-icon>
+        <h2>No hay un sorteo activo</h2>
+        <p>La pantalla permanecerá disponible y mostrará la información cuando exista un sorteo activo.</p>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <section class="delivery-grid">
+      <div class="delivery-left">
+      <mat-card class="cardWithShadow lottery-card">
+        <div class="lottery-image">
+          @if (lotteryService.imageUrl(sorteo.imagen1); as imageUrl) {
+            <img [src]="imageUrl" [alt]="sorteo.nombre" />
+          } @else {
+            <mat-icon>confirmation_number</mat-icon>
+          }
+          <span
+            class="status-chip"
+            [class.status-chip--ready]="capturaDisponible"
+          >{{ estadoLabel }}</span>
+        </div>
+        <mat-card-content>
+          <span class="card-eyebrow">Sorteo seleccionado</span>
+          <h2>{{ sorteo.nombre }}</h2>
+          <dl class="lottery-details">
+            <div><dt><mat-icon>calendar_month</mat-icon>Fecha y hora</dt><dd>{{ sorteo.fecha | serverLocalDate:'dd/MM/yyyy, HH:mm' }}</dd></div>
+            <div><dt><mat-icon>confirmation_number</mat-icon>Numeración</dt><dd>{{ sorteo.cantidadBoletos | number }} boletos</dd></div>
+          </dl>
+        </mat-card-content>
+      </mat-card>
+
+      @if (!minimumSaleOutcomeVisible) {
+      <mat-card class="capture-card">
+        <mat-card-content>
+          <div class="step-heading">
+            <span class="step-number">1</span>
+            <div><span class="card-eyebrow">Captura el número ganador oficial</span></div>
+          </div>
+
+          @if (!capturaDisponible) {
+            <div class="state-message state-message--waiting">
+              <mat-icon>{{ sorteo.estado === 'proximo_a_iniciar' ? 'timer' : 'schedule' }}</mat-icon>
+              <div>
+                <strong>{{ sorteo.estado === 'proximo_a_iniciar' ? 'El sorteo está próximo a iniciar' : 'Esperando el inicio del sorteo' }}</strong>
+                <span>La verificación se habilitará únicamente cuando el sorteo se encuentre en proceso.</span>
+              </div>
+            </div>
+          }
+
+          <form [formGroup]="form" (ngSubmit)="prepareVerification()">
+              <mat-form-field appearance="outline" class="winner-number-field">
+                <mat-label>Número del primer lugar</mat-label>
+                <input
+                  matInput
+                  formControlName="numeroGanador"
+                  inputmode="numeric"
+                  pattern="[0-9]*"
+                  [maxlength]="ticketDigits"
+                  [placeholder]="'0'.repeat(ticketDigits)"
+                  [readonly]="!capturaDisponible"
+                  (input)="onNumberInput($event)"
+                />
+                <mat-icon matSuffix tabindex="-1">tag</mat-icon>
+                <mat-hint>Captura exactamente {{ ticketDigits }} dígitos, incluyendo ceros a la izquierda.</mat-hint>
+                @if (form.controls.numeroGanador.touched && !numeroValido) {
+                  <mat-error>El número ganador debe contener {{ ticketDigits }} dígitos.</mat-error>
+                }
+              </mat-form-field>
+
+              <div class="capture-actions">
+                <button mat-stroked-button type="button" [disabled]="!form.controls.numeroGanador.value" (click)="clear()">
+                  <mat-icon>restart_alt</mat-icon>Limpiar
+                </button>
+                <button mat-flat-button color="primary" type="submit" [disabled]="!capturaDisponible || !numeroValido || processing">
+                  @if (processing) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                  } @else {
+                    <mat-icon>search</mat-icon>
+                  }
+                  Verificar número ganador
+                </button>
+              </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+      }
+      </div>
+
+      <mat-card
+        class="cardWithShadow result-card"
+        [class.result-card--empty]="!minimumSaleOutcomeVisible && !verification && !finalizedWinner"
+        [class.result-card--winner]="verification?.hayGanador === true || (!verification && !!finalizedWinner)"
+        [class.result-card--no-winner]="minimumSaleOutcomeVisible || verification?.hayGanador === false"
+      >
+        <mat-card-content>
+          @if (minimumSaleOutcomeVisible) {
+            <div class="minimum-sale-result">
+              <mat-icon>event_repeat</mat-icon>
+              <span class="card-eyebrow">Venta mínima no alcanzada</span>
+              <h3>El sorteo debe reprogramarse</h3>
+              <p>
+                Se vendió el <strong>{{ sorteo.porcentajeVenta | number:'1.0-1' }}%</strong> de los boletos y
+                se requiere al menos el <strong>{{ sorteo.porcentajeMinimoVenta | number:'1.0-1' }}%</strong>
+                para realizar el sorteo.
+              </p>
+              <p>No se permitirá capturar un número ganador. El sorteo debe reprogramarse para una nueva fecha.</p>
+              <button mat-flat-button color="primary" type="button" [disabled]="processing" (click)="confirmReschedule()">
+                <mat-icon>event_repeat</mat-icon>
+                Reprogramar sorteo
+              </button>
+            </div>
+          } @else if (verification) {
+            @if (verification.hayGanador) {
+              <div class="winner-result">
+                <mat-icon>emoji_events</mat-icon>
+                <h3>Boleto ganador</h3>
+                <dl>
+                  <div><dt>Número</dt><dd>{{ verification.numeroGanador }}</dd></div>
+                  <div><dt>Usuario</dt><dd>{{ verification.usuarioGanador }}</dd></div>
+                  <div><dt>WhatsApp</dt><dd>{{ verification.whatsAppGanador }}</dd></div>
+                  <div><dt>Folio</dt><dd>{{ verification.folioCompra }}</dd></div>
+                </dl>
+                @if (verification.referencia?.premioGenerado === true) {
+                  @if (verification.referencia; as referral) {
+                  <section class="referral-result referral-result--preview">
+                    <div class="referral-award-heading">
+                      <mat-icon>emoji_events</mat-icon>
+                      <h4>Ganador por referido</h4>
+                    </div>
+                    <div class="referral-reward-amount">{{ referral.importePremio | currency:'MXN':'symbol-narrow':'1.2-2' }}</div>
+                    <dl>
+                      <div><dt>Usuario</dt><dd>{{ referral.referidorNombre }}</dd></div>
+                      <div><dt>Boletos requeridos</dt><dd>{{ referral.boletosRequeridos | number }}</dd></div>
+                      <div><dt>Boletos comprados</dt><dd>{{ referral.boletosConfirmados | number }}</dd></div>
+                    </dl>
+                  
+                  </section>
+                  }
+                }
+                <button mat-flat-button color="primary" type="button" [disabled]="processing" (click)="confirmFinalize()">
+                  <mat-icon>task_alt</mat-icon>
+                  Finalizar sorteo
+                </button>
+              </div>
+            } @else {
+              <div class="no-winner-result">
+                <mat-icon>event_repeat</mat-icon>
+                <h3>Número no vendido</h3>
+                <button mat-flat-button color="primary" type="button" [disabled]="processing" (click)="confirmReschedule()">
+                  <mat-icon>event_repeat</mat-icon>
+                  Reprogramar sorteo
+                </button>
+              </div>
+            }
+          } @else if (finalizedWinner; as winner) {
+            <span class="card-eyebrow">Último resultado finalizado</span>
+            <div class="finalized-winner-heading">
+              <mat-icon>emoji_events</mat-icon>
+              <div>
+                <h2>{{ winner.sorteoNombre }}</h2>
+                <p>Finalizado el {{ winner.fechaFinalizacion | serverLocalDate:'dd/MM/yyyy, HH:mm' }}</p>
+              </div>
+            </div>
+            <dl class="finalized-winner-details">
+              <div><dt>Número ganador</dt><dd>{{ winner.numeroGanador }}</dd></div>
+              <div><dt>Ganador del sorteo</dt><dd>{{ winner.usuarioGanador }}</dd></div>
+              <div><dt>Folio</dt><dd>{{ winner.folioCompra }}</dd></div>
+            </dl>
+
+            @if (winner.referencia?.premioGenerado === true) {
+              @if (winner.referencia; as referral) {
+              <section class="referral-result referral-result--final">
+                <div class="referral-award-heading">
+                  <mat-icon>emoji_events</mat-icon>
+                  <h3>Ganador por referido</h3>
+                </div>
+                <div class="referral-reward-amount">{{ referral.importePremio | currency:'MXN':'symbol-narrow':'1.2-2' }}</div>
+                <dl>
+                  <div><dt>Usuario</dt><dd>{{ referral.referidorNombre }}</dd></div>
+                  <div><dt>Boletos requeridos</dt><dd>{{ referral.boletosRequeridos | number }}</dd></div>
+                  <div><dt>Boletos comprados</dt><dd>{{ referral.boletosConfirmados | number }}</dd></div>
+                  <div><dt>Estado</dt><dd class="reward-status" [class.reward-status--paid]="referral.estado === 2">{{ referralStatusLabel(referral.estado) }}</dd></div>
+                  @if (referral.estado === 2 && referral.fechaPago) {
+                    <div><dt>Fecha de pago</dt><dd>{{ referral.fechaPago | serverLocalDate:'dd/MM/yyyy, HH:mm' }}</dd></div>
+                  }
+                </dl>
+              </section>
+              }
+            }
+          }
+        </mat-card-content>
+      </mat-card>
+    </section>
+  }
+</main>
+
+
+

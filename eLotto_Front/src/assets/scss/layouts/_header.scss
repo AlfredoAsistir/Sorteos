@@ -1,0 +1,100 @@
+@use "../variables" as *;
+
+html .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 9;
+  height: $header-height;
+  background-color: var(--mat-sys-background);
+}
+
+.topbar-dd {
+  min-width: 360px !important;
+}
+
+.apps-dd {
+  min-width: 830px !important;
+  overflow: unset !important;
+
+  .mat-mdc-menu-content {
+    padding: 0;
+  }
+}
+
+.text-hover-primary:hover {
+  .hover-text {
+    color: $primary;
+  }
+}
+
+.upgrade-bg {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  height: 100%;
+}
+
+.object-cover {
+  object-fit: cover;
+}
+
+.profile-dd {
+  margin-top: -5px;
+  margin-left: -5px;
+}
+
+.profile-avatar {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(25, 118, 210, 0.22);
+  border-radius: 50%;
+  color: #1976d2;
+  background: rgba(25, 118, 210, 0.1);
+}
+
+.mat-mdc-icon-button.profile-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.profile-avatar--button {
+  width: 39px;
+  height: 39px;
+}
+
+.profile-avatar--button i-tabler {
+  width: 23px;
+  height: 23px;
+}
+
+.profile-avatar--menu {
+  width: 55px;
+  height: 55px;
+}
+
+.profile-avatar--menu i-tabler {
+  width: 34px;
+  height: 34px;
+}
+
+.badge-position{
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.dark-theme {
+  .topbar {
+    .mat-mdc-icon-button {
+      color: $dark-text-secondary !important;
+    }
+
+    .mdc-button {
+      --mat-button-text-label-text-color: $dark-text-secondary !important;
+    }
+  }
+}

@@ -1,0 +1,28 @@
+@if (!loading && pendingScratchcards.length) {
+  <mat-card class="cardWithShadow scratchcards-panel">
+    <mat-card-content>
+      <div class="scratchcards-panel__summary">
+        <div class="scratchcards-panel__icon" aria-hidden="true">
+          <mat-icon>auto_awesome</mat-icon>
+        </div>
+        <div>
+          <h2>
+            @if (pendingCount === 1) { Tienes 1 rascadito disponible }
+            @else { Tienes {{ pendingCount }} rascaditos disponibles }
+          </h2>
+          <p>Rasca, descubre tu combinación y gana. Si obtienes un premio, se acredita directamente a tu saldo.</p>
+          <a class="scratchcards-panel__help" routerLink="/starter/preguntas-frecuentes" fragment="rascaditos">
+            ¿Cómo funcionan los Rascaditos?
+          </a>
+        </div>
+        @if (pendingScratchcards[0]; as nextScratchcard) {
+          <button mat-flat-button color="primary" type="button" (click)="openScratchcard(nextScratchcard)">
+            <mat-icon>touch_app</mat-icon>
+            Rascar ahora
+          </button>
+        }
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+}

@@ -1,0 +1,104 @@
+:host {
+  display: block;
+}
+
+.horizontal-topbar .user-header-container {
+  width: 100% !important;
+  max-width: none !important;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+  padding-right: 24px !important;
+  box-sizing: border-box;
+  justify-content: flex-end !important;
+}
+
+.horizontal-topbar .user-header-container > .flex-1-auto {
+  display: block;
+  flex: 1 1 auto;
+}
+
+.horizontal-topbar .social-header-link {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 46px;
+  width: 46px;
+  height: 46px;
+  margin-right: 6px;
+  padding: 0 !important;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  color: #fff;
+  line-height: 1;
+  text-decoration: none;
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+
+.horizontal-topbar .social-header-link i-tabler {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 29px !important;
+  height: 29px !important;
+  margin: 0 !important;
+}
+
+.horizontal-topbar .social-header-link:hover {
+  transform: translateY(-2px);
+  filter: saturate(1.08);
+}
+
+.horizontal-topbar .help-header-link {
+  min-width: auto;
+  margin: 0 4px;
+  border-radius: 999px;
+  color: inherit;
+}
+
+.horizontal-topbar .help-header-link mat-icon {
+  margin-right: 5px;
+}
+
+.horizontal-topbar .facebook-link {
+  background: #1877f2;
+  box-shadow: 0 5px 13px rgba(24, 119, 242, .28);
+}
+
+.horizontal-topbar .whatsapp-link {
+  background: #25d366;
+  box-shadow: 0 5px 13px rgba(37, 211, 102, .28);
+}
+
+@media (max-width: 767px) {
+  .horizontal-topbar .user-header-container {
+    padding-right: 8px !important;
+  }
+
+  .horizontal-topbar .social-header-link {
+    flex-basis: 42px;
+    width: 42px;
+    height: 42px;
+    margin-right: 4px;
+  }
+
+  .horizontal-topbar .social-header-link i-tabler {
+    width: 27px !important;
+    height: 27px !important;
+  }
+
+  .horizontal-topbar .help-header-link {
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    padding: 0;
+  }
+
+  .horizontal-topbar .help-header-link mat-icon { margin: 0; }
+  .horizontal-topbar .help-header-link span { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .horizontal-topbar .social-header-link {
+    transition: none;
+  }
+}

@@ -1,0 +1,12 @@
+<!-- ============================================================== -->
+<!-- Only router without any element -->
+<!-- ============================================================== -->
+<mat-sidenav-container
+  [ngClass]="{
+    cardBorder: options.cardBorder,
+  }"
+  [dir]="options.dir!"
+>
+  <router-outlet></router-outlet>
+  <app-footer></app-footer>
+</mat-sidenav-container>

@@ -1,0 +1,25 @@
+<fieldset class="date-time-field" [class.date-time-field--labels-above]="labelAbove">
+  <legend>{{ label }}</legend>
+  <div class="date-time-grid">
+    <div class="date-time-control">
+      @if (labelAbove) { <label class="date-time-label" [for]="'draw-date-' + fieldId">Fecha</label> }
+    <mat-form-field appearance="outline">
+      @if (!labelAbove) { <mat-label>Fecha</mat-label> }
+      <input matInput [id]="'draw-date-' + fieldId" [matDatepicker]="picker" [formControl]="dateControl" [appDateMask]="dateControl" inputmode="numeric" maxlength="10" placeholder="dd/MM/yyyy" autocomplete="off" />
+      <mat-datepicker-toggle matIconSuffix [for]="picker" [tabIndex]="-1" />
+      <mat-datepicker #picker />
+      @if (dateControl.invalid && dateControl.touched) { <mat-error>La fecha es requerida.</mat-error> }
+    </mat-form-field>
+    </div>
+    <div class="date-time-control">
+      @if (labelAbove) { <label class="date-time-label" [for]="'draw-time-' + fieldId">Hora</label> }
+    <mat-form-field appearance="outline">
+      @if (!labelAbove) { <mat-label>Hora</mat-label> }
+      <input matInput [id]="'draw-time-' + fieldId" [formControl]="timeControl" [appHourMask]="timeControl" inputmode="numeric" placeholder="HH:00" maxlength="5" />
+      <button mat-icon-button matIconSuffix type="button" tabindex="-1" [matMenuTriggerFor]="hourMenu"><mat-icon>schedule</mat-icon></button>
+      <mat-menu #hourMenu="matMenu"><div class="hour-grid">@for (hour of hours; track hour) { <button mat-menu-item type="button" (click)="selectHour(hour)">{{ hour }}</button> }</div></mat-menu>
+      @if (timeControl.invalid && timeControl.touched) { <mat-error>Ingresa una hora válida.</mat-error> }
+    </mat-form-field>
+    </div>
+  </div>
+</fieldset>

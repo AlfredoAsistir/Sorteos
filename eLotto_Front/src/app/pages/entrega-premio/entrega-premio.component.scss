@@ -1,0 +1,499 @@
+.prize-delivery-page {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.celebration-overlay {
+  position: fixed;
+  z-index: 1200;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+}
+.celebration-stage {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  width: min(900px, 75vw);
+  height: 78vh;
+  transform: translateX(-50%);
+}
+.confetti-piece {
+  --drift: 0px;
+  --rotation: 540deg;
+  position: absolute;
+  top: 18%;
+  width: 9px;
+  height: 16px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: confetti-fall 4s cubic-bezier(.18,.7,.35,1) forwards;
+}
+.confetti-cannon {
+  position: absolute;
+  bottom: 9%;
+  width: 34px;
+  height: 62px;
+  border-radius: 5px 5px 15px 15px;
+  background: linear-gradient(135deg, #f6c945, #e39016);
+  box-shadow: 0 7px 15px rgba(0, 0, 0, .2);
+  opacity: 0;
+  animation: cannon-pop 1.1s ease-out .65s forwards;
+}
+.confetti-cannon::after {
+  position: absolute;
+  top: -7px;
+  left: -5px;
+  width: 44px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffe082;
+  content: '';
+}
+.confetti-cannon--left { left: calc(34% - 17px); transform: rotate(-20deg); }
+.confetti-cannon--right { left: calc(66% - 17px); transform: rotate(20deg); }
+.cannon-confetti-piece {
+  --travel-x: 0px;
+  --travel-end-x: 0px;
+  --lift: -380px;
+  --final-lift: -200px;
+  --rotation: 620deg;
+  --final-rotation: 868deg;
+  position: absolute;
+  bottom: 15%;
+  width: 10px;
+  height: 17px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: cannon-confetti-burst 3.4s cubic-bezier(.16,.72,.3,1) forwards;
+}
+.firework {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  opacity: 0;
+  animation: firework-cycle 1.45s ease-out 2 forwards;
+}
+.firework--0 { top: 25%; left: 27%; color: #f6c945; }
+.firework--1 { top: 14%; left: 50%; color: #42a5f5; animation-delay: .35s; }
+.firework--2 { top: 29%; left: 73%; color: #ef5350; animation-delay: .7s; }
+.firework span {
+  --angle: 0deg;
+  position: absolute;
+  inset: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0;
+  transform: rotate(var(--angle));
+  transform-origin: 0 50%;
+  animation: firework-spark 1.45s ease-out 2 forwards;
+}
+.celebration-message {
+  display: grid;
+  min-width: 320px;
+  justify-items: center;
+  gap: 8px;
+  padding: 20px 34px;
+  border: 1px solid rgba(246, 201, 69, .7);
+  border-radius: 22px;
+  background: rgba(15, 28, 45, .94);
+  color: #fff;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, .32);
+  animation: celebration-message 5s ease-in-out forwards;
+}
+.celebration-message mat-icon {
+  width: 52px;
+  height: 52px;
+  color: #f6c945;
+  font-size: 52px;
+}
+.celebration-message strong { font-size: 1.65rem; }
+
+@keyframes confetti-fall {
+  0% { opacity: 0; transform: translate3d(0, -30px, 0) rotate(0deg); }
+  10% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--drift), 62vh, 0) rotate(var(--rotation)); }
+}
+@keyframes cannon-pop {
+  0% { opacity: 0; }
+  18%, 88% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes cannon-confetti-burst {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0deg) scale(.7); }
+  8% { opacity: 1; }
+  52% { opacity: 1; transform: translate3d(var(--travel-x), var(--lift), 0) rotate(var(--rotation)) scale(1); }
+  100% { opacity: 0; transform: translate3d(var(--travel-end-x), var(--final-lift), 0) rotate(var(--final-rotation)) scale(.85); }
+}
+@keyframes firework-cycle {
+  0%, 100% { opacity: 0; }
+  12%, 72% { opacity: 1; }
+}
+@keyframes firework-spark {
+  0% { width: 4px; opacity: 0; }
+  12% { opacity: 1; }
+  70% { width: 78px; opacity: .9; }
+  100% { width: 92px; opacity: 0; }
+}
+@keyframes celebration-message {
+  0% { opacity: 0; transform: scale(.88); }
+  10%, 82% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(.96); }
+}
+
+.page-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.page-heading h1 { margin: 4px 0 7px; font-size: clamp(1.8rem, 4vw, 2.5rem); }
+.page-heading p { max-width: 760px; margin: 0; opacity: .72; }
+.page-eyebrow,
+.card-eyebrow {
+  color: #1565c0;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.official-source {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 15px;
+  border: 1px solid rgba(21, 101, 192, .28);
+  border-radius: 14px;
+  background: rgba(21, 101, 192, .07);
+}
+.official-source mat-icon { color: #1565c0; }
+.official-source span { display: grid; }
+.official-source small { opacity: .65; }
+
+.delivery-grid {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  align-items: stretch;
+  gap: 20px;
+}
+.delivery-left {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  
+}
+.lottery-card,
+.capture-card,
+.verification-card,
+.result-card { overflow: hidden; border-radius: 20px; }
+.capture-card {
+  order: -1;
+  border: 1px solid rgba(127, 127, 127, .28);
+  box-shadow: none;
+  margin-bottom: 10px;
+}
+.result-card {
+  min-width: 0;
+  min-height: 460px;
+  transition: border-color .2s ease, background-color .2s ease;
+}
+.result-card--empty mat-card-content {
+  min-height: 460px;
+}
+.result-card--winner {
+  border: 1px solid rgba(46, 125, 50, .32);
+  background: rgba(46, 125, 50, .07);
+}
+.result-card--no-winner {
+  border: 1px solid rgba(230, 81, 0, .3);
+  background: rgba(230, 81, 0, .06);
+}
+.lottery-image {
+  position: relative;
+  display: grid;
+  min-height: 250px;
+  place-items: center;
+  overflow: hidden;
+  background: linear-gradient(135deg, #10233f, #173b65);
+}
+.lottery-image img { width: 100%; height: 100%; min-height: 250px; object-fit: contain; }
+.lottery-image > mat-icon { width: 72px; height: 72px; color: rgba(255,255,255,.7); font-size: 72px; }
+.status-chip {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(21, 101, 192, .94);
+  color: #fff;
+  font-size: .76rem;
+  font-weight: 800;
+  box-shadow: 0 8px 20px rgba(0,0,0,.24);
+}
+.status-chip--ready { background: rgba(230, 81, 0, .95); }
+.status-chip--finished { background: rgba(46, 125, 50, .95); }
+
+.lottery-card mat-card-content,
+.capture-card mat-card-content,
+.verification-card mat-card-content,
+.result-card mat-card-content { padding: clamp(20px, 3vw, 30px); }
+.lottery-card h2,
+.capture-card h2,
+.verification-card h2 { margin: 5px 0 20px; }
+.lottery-details { display: grid; gap: 12px; margin: 0; }
+.lottery-details > div { display: flex; justify-content: space-between; gap: 18px; padding-bottom: 11px; border-bottom: 1px solid rgba(127,127,127,.2); }
+.lottery-details > div:last-child { padding-bottom: 0; border-bottom: 0; }
+.lottery-details dt { display: flex; align-items: center; gap: 7px; opacity: .68; }
+.lottery-details dt mat-icon { width: 19px; height: 19px; font-size: 19px; }
+.lottery-details dd { margin: 0; text-align: right; font-weight: 700; }
+
+.step-heading { display: flex; align-items: center; gap: 13px; }
+.step-heading h2 { margin: 3px 0 0; }
+.step-number {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  place-items: center;
+  border-radius: 50%;
+  background: #1565c0;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.state-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 22px 0;
+  padding: 15px;
+  border: 1px solid rgba(230, 81, 0, .3);
+  border-radius: 14px;
+  background: rgba(230, 81, 0, .07);
+}
+.state-message mat-icon { color: #e65100; }
+.state-message div { display: grid; gap: 3px; }
+.state-message span { opacity: .75; }
+.state-message--success { border-color: rgba(46,125,50,.3); background: rgba(46,125,50,.08); }
+.state-message--success mat-icon { color: #2e7d32; }
+
+.capture-card mat-card-content { padding: 16px 18px 12px; }
+.capture-card form { display: grid; gap: 10px; margin-top: 12px; }
+.winner-number-field { width: 100%; }
+.winner-number-field input {
+  text-align: center;
+  font-size: clamp(1.7rem, 5vw, 2.7rem);
+  font-weight: 900;
+  letter-spacing: .16em;
+  font-variant-numeric: tabular-nums;
+}
+.capture-actions { display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+.capture-actions button { min-height: 46px; }
+.no-winner-result {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 12px;
+  text-align: center;
+}
+.no-winner-result > mat-icon {
+  width: 42px;
+  height: 42px;
+  color: #e65100;
+  font-size: 42px;
+}
+.no-winner-result h3 { margin: 0; font-size: 1.25rem; }
+.no-winner-result button { min-width: min(100%, 300px); min-height: 46px; }
+.minimum-sale-result {
+  display: grid;
+  min-height: 390px;
+  align-content: center;
+  justify-items: center;
+  gap: 12px;
+  padding: 12px;
+  text-align: center;
+}
+.minimum-sale-result > mat-icon {
+  width: 54px;
+  height: 54px;
+  color: #e65100;
+  font-size: 54px;
+}
+.minimum-sale-result h3 { margin: 0; font-size: clamp(1.35rem, 3vw, 1.75rem); }
+.minimum-sale-result p { max-width: 520px; margin: 0; line-height: 1.55; opacity: .82; }
+.minimum-sale-result p strong { color: #c2410c; font-size: 1.08em; opacity: 1; }
+.minimum-sale-result button { min-width: min(100%, 300px); min-height: 46px; margin-top: 10px; }
+:host-context(.dark-theme) .minimum-sale-result p strong { color: #ffb74d; }
+.winner-result {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  margin-top: 0;
+  padding: 12px;
+  text-align: center;
+}
+.winner-result > mat-icon {
+  width: 46px;
+  height: 46px;
+  color: #2e7d32;
+  font-size: 46px;
+}
+.winner-result h3 { margin: 0; font-size: 1.25rem; }
+.winner-result dl {
+  display: grid;
+  width: min(100%, 440px);
+  gap: 0;
+  margin: 4px 0;
+}
+.winner-result dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(46, 125, 50, .18);
+}
+.winner-result dl > div:last-child { border-bottom: 0; }
+.winner-result dt { opacity: .7; }
+.winner-result dd { margin: 0; font-weight: 700; text-align: right; }
+.winner-result button { min-width: min(100%, 300px); min-height: 46px; }
+.referral-result {
+  width: min(100%, 560px);
+  box-sizing: border-box;
+  margin: 10px 0;
+  padding: 18px;
+  border: 1px solid rgba(21, 101, 192, .3);
+  border-radius: 16px;
+  background: rgba(21, 101, 192, .06);
+  text-align: left;
+}
+.referral-result header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.referral-result header mat-icon { color: #1565c0; }
+.referral-result header span { color: #1565c0; font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.referral-result h3,
+.referral-result h4 { margin: 2px 0 0; }
+.referral-award-heading {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.referral-award-heading mat-icon {
+  width: 34px;
+  height: 34px;
+  color: #d6a817;
+  font-size: 34px;
+}
+.referral-award-heading h3,
+.referral-award-heading h4 { margin: 0; }
+.referral-result dl { width: 100%; margin: 0; }
+.referral-result p { margin: 12px 0 0; opacity: .72; }
+.preview-eligible { color: #2e7d32; opacity: 1 !important; font-weight: 600; }
+.referral-result--final { width: 100%; margin-top: 22px; }
+.referral-reward-amount {
+  margin: 4px 0 12px;
+  color: #1565c0;
+  font-size: clamp(1.65rem, 4vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: center;
+}
+.reward-status { color: #a45b00; }
+.reward-status--paid { color: #2e7d32; }
+.finalized-winner-card { margin-top: 20px; overflow: hidden; border-radius: 20px; }
+.finalized-winner-card mat-card-content { padding: clamp(20px, 3vw, 30px); }
+.finalized-winner-heading { display: flex; align-items: center; gap: 14px; margin: 8px 0 20px; }
+.finalized-winner-heading > mat-icon { width: 46px; height: 46px; color: #2e7d32; font-size: 46px; }
+.finalized-winner-heading h2,
+.finalized-winner-heading p { margin: 0; }
+.finalized-winner-heading p { margin-top: 4px; opacity: .68; }
+.finalized-winner-details { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.finalized-winner-details > div { display: grid; gap: 5px; padding: 14px; border: 1px solid rgba(127,127,127,.2); border-radius: 12px; }
+.finalized-winner-details dt { opacity: .68; }
+.finalized-winner-details dd { margin: 0; font-weight: 700; }
+.backend-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px dashed rgba(127,127,127,.32);
+  font-size: .82rem;
+  opacity: .7;
+}
+.backend-note mat-icon { flex: 0 0 auto; width: 19px; height: 19px; font-size: 19px; }
+
+.verification-card { margin-top: 20px; }
+.verification-intro { margin: 18px 0; opacity: .72; }
+.outcome-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+.outcome-grid--single { grid-template-columns: 1fr; }
+.outcome {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid rgba(127,127,127,.25);
+  border-radius: 16px;
+}
+.outcome > mat-icon { width: 34px; height: 34px; font-size: 34px; }
+.outcome h3 { margin: 0 0 5px; }
+.outcome p { margin: 0; opacity: .7; }
+.outcome button { grid-column: 1 / -1; margin-top: 8px; }
+.outcome--winner { border-color: rgba(46,125,50,.32); background: rgba(46,125,50,.06); }
+.outcome--winner > mat-icon { color: #2e7d32; }
+.outcome--empty { border-color: rgba(230,81,0,.3); background: rgba(230,81,0,.06); }
+.outcome--empty > mat-icon { color: #e65100; }
+
+.loading-state mat-card-content,
+.empty-state mat-card-content {
+  display: grid;
+  min-height: 260px;
+  place-items: center;
+  align-content: center;
+  gap: 14px;
+  text-align: center;
+}
+.empty-state mat-icon { width: 62px; height: 62px; font-size: 62px; opacity: .55; }
+.empty-state h2,
+.empty-state p { margin: 0; }
+
+@media(max-width: 900px) {
+  .delivery-grid { grid-template-columns: 1fr; }
+  .result-card,
+  .result-card--empty mat-card-content { min-height: 300px; }
+}
+
+@media(max-width: 640px) {
+  .prize-delivery-page { padding: 16px; }
+  .page-heading { flex-direction: column; }
+  .official-source { width: 100%; box-sizing: border-box; }
+  .lottery-details > div { display: grid; gap: 5px; }
+  .lottery-details dd { text-align: left; }
+  .capture-actions { display: grid; }
+  .capture-actions button { width: 100%; }
+  .outcome-grid { grid-template-columns: 1fr; }
+  .finalized-winner-details { grid-template-columns: 1fr; }
+  .referral-result dl > div { display: grid; gap: 5px; }
+  .referral-result dd { text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-piece,
+  .confetti-cannon,
+  .cannon-confetti-piece,
+  .firework,
+  .firework span { display: none; }
+  .celebration-message { animation: celebration-message 5s linear forwards; }
+}

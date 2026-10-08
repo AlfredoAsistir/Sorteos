@@ -1,0 +1,83 @@
+<main class="referral-settings-page">
+  <header>
+    <p>Configura los beneficios económicos vigentes del programa.</p>
+  </header>
+
+  <mat-card class="cardWithShadow">
+    <mat-card-content>
+      @if (settings) {
+        <form [formGroup]="form" (ngSubmit)="save()">
+          <section class="program-status">
+            <div>
+              <h2>Estado del programa</h2>
+              <p>Al desactivarlo se suspenden nuevos bonos y premios, pero se conservan las atribuciones de referidos.</p>
+            </div>
+            <mat-slide-toggle formControlName="isActive">
+              {{ form.controls.isActive.value ? 'Activo' : 'Inactivo' }}
+            </mat-slide-toggle>
+          </section>
+
+          <div class="settings-grid">
+            <div class="setting-field">
+              <app-numeric-input
+                label="Bono por depósito (%)"
+                [integerDigits]="3"
+                [decimalDigits]="2"
+                formControlName="depositRewardPercentage"
+              />
+              <p>Porcentaje del depósito confirmado que recibirán el referido y su referidor como saldo eLotto.</p>
+            </div>
+
+            <div class="setting-field">
+              <app-numeric-input
+                label="Máximo de depósitos bonificados"
+                [integerDigits]="9"
+                formControlName="maxRewardedDeposits"
+              />
+              <p>Límite histórico de bonos otorgados por cada usuario referido.</p>
+            </div>
+
+            <div class="setting-field">
+              <app-numeric-input
+                label="Premio por referido ganador (MXN)"
+                [integerDigits]="16"
+                [decimalDigits]="2"
+                formControlName="winnerCashRewardAmount"
+              />
+              <p>Premio en efectivo para el referidor que cumpla los requisitos del sorteo.</p>
+            </div>
+
+            <div class="setting-field">
+              <app-numeric-input
+                label="Boletos confirmados mínimos"
+                [integerDigits]="9"
+                formControlName="minimumConfirmedTickets"
+              />
+              <p>Participación mínima del referidor en el mismo sorteo. Cero elimina este requisito.</p>
+            </div>
+          </div>
+
+          <div class="settings-footer">
+            <span>Última actualización: {{ settings.updatedAt | serverLocalDate:'dd/MM/yyyy, HH:mm' }}</span>
+            <div class="actions">
+              @if (form.dirty) {
+                <button mat-stroked-button type="button" [disabled]="saving" (click)="undo()">
+                  <mat-icon>undo</mat-icon>Deshacer
+                </button>
+              }
+              <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || !form.dirty || saving">
+                <mat-icon>save</mat-icon>{{ saving ? 'Guardando...' : 'Actualizar' }}
+              </button>
+            </div>
+          </div>
+        </form>
+      } @else if (!loading) {
+        <div class="empty-state">
+          <mat-icon>settings_alert</mat-icon>
+          <p>No fue posible obtener la configuración.</p>
+          <button mat-stroked-button type="button" (click)="load()">Reintentar</button>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</main>

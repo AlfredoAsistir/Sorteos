@@ -1,0 +1,112 @@
+<main class="winnings-page">
+
+
+  @if (loaded && history?.premios?.length === 0) {
+    <mat-card class="empty-state cardWithShadow">
+      <mat-card-content>
+        <mat-icon>workspace_premium</mat-icon>
+        <h2>Aún no tienes premios registrados</h2>
+        <p>Cuando ganes en un sorteo, rascadito o por medio de un referido, aparecerá aquí automáticamente.</p>
+      </mat-card-content>
+    </mat-card>
+  } @else if (history; as result) {
+    <section class="winnings-summary" aria-label="Resumen histórico de premios">
+      <div>
+        <mat-icon>emoji_events</mat-icon>
+        <span>Total de premios</span>
+        <strong>{{ result.totalPremios | number }}</strong>
+      </div>
+      <div>
+        <mat-icon>redeem</mat-icon>
+        <span>Premios de rascaditos</span>
+        <strong>{{ result.totalRascaditos | number }}</strong>
+      </div>
+      <div>
+        <mat-icon>account_balance_wallet</mat-icon>
+        <span>Ganado en rascaditos</span>
+        <strong>{{ result.importeRascaditos | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
+      </div>
+      <div>
+        <mat-icon>military_tech</mat-icon>
+        <span>Ganado por referidos</span>
+        <strong>{{ result.importeReferidos | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
+      </div>
+    </section>
+
+    <section class="winnings-history" aria-label="Historial de premios">
+      @for (prize of result.premios; track prize.tipo + '-' + prize.origen + '-' + prize.id) {
+        <article class="prize-card"
+          [class.prize-card--scratchcard]="prize.tipo === 'rascadito'"
+          [class.prize-card--referral]="prize.tipo === 'referido'">
+          <div class="prize-card__media">
+            @if (prize.tipo !== 'referido' && imageUrl(prize.sorteoImagen); as image) {
+              <img [src]="image" [alt]="prize.sorteoNombre" loading="lazy">
+            } @else {
+              <mat-icon aria-hidden="true">
+                {{ prize.tipo === 'rascadito' ? 'redeem' : prize.tipo === 'referido' ? 'military_tech' : 'emoji_events' }}
+              </mat-icon>
+            }
+          </div>
+
+          <div class="prize-card__content">
+            <header>
+              <span class="prize-type">
+                <mat-icon>{{ prize.tipo === 'rascadito' ? 'redeem' : prize.tipo === 'referido' ? 'military_tech' : 'emoji_events' }}</mat-icon>
+                {{ prize.tipo === 'rascadito' ? 'Rascadito ganador' : prize.tipo === 'referido' ? 'Premio por referido' : 'Sorteo ganador' }}
+              </span>
+              <time [attr.datetime]="prize.fecha">{{ prize.fecha | serverLocalDate:'dd/MM/yyyy' }}</time>
+            </header>
+
+            @if (prize.tipo === 'sorteo') {
+              <h2>{{ prize.sorteoNombre }}</h2>
+            }
+            @if (prize.tipo !== 'referido') {
+              <p class="sorteo-reference">Sorteo #{{ prize.sorteoId }}</p>
+            }
+
+            @if (prize.tipo === 'sorteo') {
+              <div class="winning-number">
+                <span>Número ganador</span>
+                <strong>{{ prize.numeroGanador }}</strong>
+              </div>
+            } @else if (prize.tipo === 'rascadito') {
+              <div class="scratchcard-prize">
+                <div>
+                  <span>Premio ganado</span>
+                  <strong>{{ prize.importePremio | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
+                </div>
+                <div>
+                  <span>Folio del rascadito</span>
+                  <strong>{{ prize.rascaditoFolio }}</strong>
+                </div>
+              </div>
+              <button mat-flat-button type="button" class="view-scratchcard" (click)="openScratchcard(prize)">
+                <mat-icon>visibility</mat-icon>
+                Ver cómo gané
+              </button>
+            } @else {
+              <div class="referral-prize">
+                <div>
+                  <span>Referido ganador</span>
+                  <strong>{{ prize.referidoGanadorNombre }}</strong>
+                </div>
+                <div>
+                  <span>Premio ganado</span>
+                  <strong>{{ prize.importePremio | currency:'MXN':'symbol-narrow':'1.2-2' }}</strong>
+                </div>
+                <div>
+                  <span>Boletos requeridos</span>
+                  <strong>{{ prize.boletosRequeridos | number }}</strong>
+                </div>
+                <div>
+                  <span>Boletos comprados</span>
+                  <strong>{{ prize.boletosComprados | number }}</strong>
+                </div>
+              </div>
+            }
+          </div>
+        </article>
+      }
+    </section>
+  }
+</main>

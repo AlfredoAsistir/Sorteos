@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#171e26"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
+    <path d="M 245 145 A 82 82 0 1 0 249 268 L 257 238 H 192" stroke="#3bb990"/>
+    <path d="M 263 285 A 82 82 0 1 0 255 185 L 302 185 M 255 237 H 302" stroke="#6863c7"/>
+  </g>
+  <g fill="#f5f7fb" font-family="Arial, sans-serif" font-weight="700" text-anchor="middle">
+    <text x="256" y="377" font-size="40">Sorteos</text>
+    <text x="256" y="423" font-size="39">Global Broker</text>
+  </g>
+</svg>

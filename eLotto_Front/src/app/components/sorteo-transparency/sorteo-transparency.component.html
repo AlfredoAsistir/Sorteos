@@ -1,0 +1,8 @@
+@if (showDownload && status?.estado === 'publicado') {
+  <div class="transparency-download" aria-label="Documento de transparencia">
+    <p>Consulta los números no vendidos de este sorteo.</p>
+    <button type="button" class="transparency-download__button" [disabled]="downloading" (click)="downloadPdf()">
+      {{ downloading ? 'Descargando...' : 'Descargar PDF de transparencia' }}
+    </button>
+  </div>
+}

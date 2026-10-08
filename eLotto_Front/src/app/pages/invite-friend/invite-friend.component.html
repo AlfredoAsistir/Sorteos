@@ -1,0 +1,59 @@
+<div class="invite-page">
+  <mat-card class="invite-card">
+    <mat-card-header style="margin-bottom: 20px;">
+      <mat-card-title>Invita a tus amigos</mat-card-title>
+      <mat-card-subtitle>Comparte tu enlace de invitación. Cuando tus amigos se registren y participen en los sorteos, aumentan tus oportunidades de ganar premios en efectivo.</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <section class="referral-benefit" aria-labelledby="referral-benefit-title">
+        <mat-icon>emoji_events</mat-icon>
+        <div>
+          <strong id="referral-benefit-title">Si tu referido gana el premio principal, tú también ganas</strong>
+          <span>Puedes recibir dinero en efectivo cada vez que ocurra y se cumplan las condiciones del sorteo. El importe puede variar.</span>
+          <a routerLink="/starter/preguntas-frecuentes" fragment="referidos">Conocer todos los beneficios</a>
+        </div>
+      </section>
+
+      <div class="field-group">
+        <label for="referral-code">Tu código de referido</label>
+        <div class="value-box" id="referral-code">{{ referralCode || 'Cargando...' }}</div>
+      </div>
+
+      <div class="field-group">
+        <label for="invitation-link">Tu enlace de invitación</label>
+        <div class="value-box link" id="invitation-link">{{ invitationLink || 'Cargando...' }}</div>
+      </div>
+
+      <mat-form-field appearance="outline" class="message-field">
+        <mat-label>Mensaje de invitación</mat-label>
+        <textarea
+          matInput
+          rows="5"
+          [(ngModel)]="invitationMessage"
+          aria-label="Mensaje de invitación"></textarea>
+      </mat-form-field>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button
+        mat-stroked-button
+        color="primary"
+        type="button"
+        [disabled]="!invitationLink"
+        (click)="copyLink()">
+        <mat-icon>content_copy</mat-icon>
+        Copiar invitación
+      </button>
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        [disabled]="!invitationLink"
+        (click)="openWhatsApp()">
+        <mat-icon>share</mat-icon>
+        Compartir por WhatsApp
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
